@@ -1,0 +1,16 @@
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_PROGRAM_VERSION	5.8	//
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+AdminControllerTest	UnitTests/IntelExtractorTest.php	/^class AdminControllerTest extends \\PHPUnit_Framework_TestCase {$/;"	c
+intel	UnitTests/IntelExtractorTest.php	/^    $intel = new FileIntel();$/;"	v
+testExtractMethodSignatures	UnitTests/IntelExtractorTest.php	/^  public function testExtractMethodSignatures() {$/;"	f
+SimpleClassOne	data/SimpleClassOne.php	/^class SimpleClassOne {$/;"	c
+functionFive	data/SimpleClassOne.php	/^  public function functionFive($var_one, SimpleClassOne $class_two) { return 'blah'; }$/;"	f
+functionFour	data/SimpleClassOne.php	/^  public function functionFour($var_one, &$ref_var_two, array $var_three_array) { return 'blah'; }$/;"	f
+functionOne	data/SimpleClassOne.php	/^  public function functionOne() { return 'blah'; }$/;"	f
+functionThree	data/SimpleClassOne.php	/^  public function functionThree($var_one, $var_two='default') { return 'blah'; }$/;"	f
+functionTwo	data/SimpleClassOne.php	/^  public function functionTwo($var_one) { return 'blah'; }$/;"	f
+var_two	data/SimpleClassOne.php	/^  public function functionThree($var_one, $var_two='default') { return 'blah'; }$/;"	v
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/

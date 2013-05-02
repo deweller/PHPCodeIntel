@@ -1,0 +1,15 @@
+{
+
+    // the TCP/IP port on which the PHP daemon runs
+    //  (note that this isn't actually implemented yet - the daemon always runs on port 20001 for now)
+    "daemon_port": "20001",
+
+    // allow autocompletions
+    "autocomplete_enabled": true,
+
+
+
+    // show debug messages to the console
+    "debug_enabled": true
+
+}
