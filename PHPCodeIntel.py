@@ -129,7 +129,7 @@ class PhpCodeIntelScanFileCommand(sublime_plugin.TextCommand):
         src_file = self.view.file_name()
         if src_file == None:
             return
-        dest_file = find_top_folder(self.view, src_file) + '/.php_intel_data'
+        dest_file = find_top_folder(self.view, src_file) + '/.php_intel.sqlite3'
         run_remote_cmd('scanFile', [src_file, dest_file])
 
 
@@ -142,7 +142,7 @@ class PhpCodeIntelAutoComplete(sublime_plugin.EventListener):
     def on_query_completions(self, view, prefix, locations):
         if settings.get('autocomplete_enabled', False) == True:
             src_file = view.file_name()
-            php_intel_file = find_top_folder(view, src_file) + '/.php_intel_data'
+            php_intel_file = find_top_folder(view, src_file) + '/.php_intel.sqlite3'
             completions_array = run_remote_cmd('autoComplete', ['', php_intel_file])
 
             # convert completions array into tuples for python

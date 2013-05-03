@@ -2,9 +2,9 @@
 
 namespace PHPIntel\Daemon;
 
-use PHPIntel\Dumper\FlatFileDumper;
+use PHPIntel\Dumper\SQLiteDumper;
 use PHPIntel\Completions\Formatter;
-use PHPIntel\Reader\FlatFileReader;
+use PHPIntel\Reader\SQLiteReader;
 use PHPIntel\FileIntelBuilder;
 
 use \Exception;
@@ -32,14 +32,14 @@ class Dispatcher
         $intel = new FileIntelBuilder();
         $entities = $intel->extractFromFile($source_file);
 
-        $dumper = new FlatFileDumper();
+        $dumper = new SQLiteDumper();
         $dumper->dump($entities, $php_intel_file);
 
         return self::successMessage();
     }
 
     public static function executeCommand_autoComplete($file_text, $php_intel_file) {
-        $reader = new FlatFileReader();
+        $reader = new SQLiteReader();
         $entities = $reader->read($php_intel_file);
 
         $formatter = new Formatter();

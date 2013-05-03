@@ -5,11 +5,13 @@ use PHPIntel\FileIntelBuilder;
 use \PHPUnit_Framework_Assert as PHPUnit;
 use \Exception;
 
-class AdminControllerTest extends \PHPUnit_Framework_TestCase {
+class IntelExtractorTest extends \PHPUnit_Framework_TestCase {
 
 
   ////////////////////////////////////////////////////////////////////////
   // tests
+
+    // note that this test doesn't do anything yet!
 
   public function testExtractMethodSignatures() {
     $intel = new FileIntelBuilder();

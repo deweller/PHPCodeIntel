@@ -47,8 +47,9 @@ class Daemon
           if ($message_text = NetString::parse(trim($net_string))) {
 
             $cmd_array = json_decode($message_text, true);
-            Logger::log("cmd_array: ".print_r($cmd_array, true));
+            // Logger::log("cmd_array: ".print_r($cmd_array, true));
             if ($cmd_array) {
+                Logger::log("cmd: ".$cmd_array['cmd']);
                 $response = \PHPIntel\Daemon\Dispatcher::dispatchCommand($cmd_array);
                 $conn->write(json_encode($response));
             } else {

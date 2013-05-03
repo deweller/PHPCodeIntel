@@ -3,3 +3,4 @@ var/log/*
 .php_intel_data
 *.sublime-project
 *.sublime-workspace
+.tags*
