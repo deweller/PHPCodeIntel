@@ -13,6 +13,7 @@ class IntelCollector extends \PHPParser_NodeVisitorAbstract
 {
 
     protected $intel_entities = array();
+    protected $pretty_printer = null;
 
     public function enterNode(\PHPParser_Node $node)
     {
@@ -28,6 +29,8 @@ class IntelCollector extends \PHPParser_NodeVisitorAbstract
     public function getIntelEntities() {
         return $this->intel_entities;
     }
+
+
 
     protected function enterNode_Stmt_ClassMethod($node) {
         $function_name = $node->name;
@@ -64,7 +67,8 @@ class IntelCollector extends \PHPParser_NodeVisitorAbstract
             $param_text .= '$'.$param->name;
 
             if (isset($param->default)) {
-                $param_text .= '='.($param->default->value === null ? 'null' : '');
+                $expr = $this->getPrettyPrinter()->prettyPrintExpr($param->default);
+                $param_text .= '='.$expr;
             }
 
             $all_params_text .= ($first_param ? '' : ', ').$param_text;
@@ -73,6 +77,13 @@ class IntelCollector extends \PHPParser_NodeVisitorAbstract
         }
 
         return $all_params_text;
+    }
+
+    protected function getPrettyPrinter() {
+        if (!isset($this->pretty_printer)) {
+            $this->pretty_printer = new \PHPParser_PrettyPrinter_Zend();
+        }
+        return $this->pretty_printer;
     }
 
 }

@@ -1,0 +1,19 @@
+SimpleClassOne:
+    -
+        label: functionOne
+        completion: functionOne()
+    -
+        label: functionTwo
+        completion: functionTwo($var_one)
+    -
+        label: functionThree
+        completion: "functionThree($var_one, $var_two='default')"
+    -
+        label: functionFour
+        completion: "functionFour($var_one, &$ref_var_two, array $var_three_array)"
+    -
+        label: functionFive
+        completion: "functionFive($var_one, SimpleClassOne $class_two)"
+    -
+        label: functionSix
+        completion: "functionSix($var_one=null)"
