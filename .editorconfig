@@ -1,0 +1,18 @@
+# Project's standard editor configuration file.
+# @version 0.1.0+build.20130503205945
+
+root = true # Stop searching for an EditorConfig.org file to apply.
+
+[*] # Settings for all files.
+
+charset = utf-8
+
+indent_style = space
+indent_size = 4
+
+trim_trailing_whitespace = true
+
+## Unix-style newlines and file ending.
+
+end_of_line = lf
+insert_final_newline = true
