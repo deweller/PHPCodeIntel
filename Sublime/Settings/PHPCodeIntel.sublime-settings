@@ -12,4 +12,16 @@
     // show debug messages to the console
     "debug_enabled": true
 
+
+
+
+    // project-level settings can overwrite any of these settings
+    // add this to your project settings
+    // "settings": {
+    //     "PHPCodeIntel": {
+    //         "autocomplete_enabled": false,
+    //         "project_root": "/Users/dweller/Library/Application Support/Sublime Text 2/Packages/PHPCodeIntel/PHP"
+    //     }
+    // } 
+
 }
