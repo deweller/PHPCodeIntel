@@ -10,15 +10,19 @@ use \Exception;
 * SQLiteDumper
 * dumps entities to an sqlite3 database
 */
-class SQLiteDumper
+class SQLiteDumper implements Dumper
 {
-    public function __construct()
+
+    protected $sqlite_filepath = null;
+
+    public function __construct($sqlite_filepath)
     {
+        $this->sqlite_filepath = $sqlite_filepath;
     }
 
-    public function dump(array $entities, $filepath)
+    public function dump(array $entities)
     {
-        $db = SQLite::getDBHandle($filepath);
+        $db = SQLite::getDBHandle($this->sqlite_filepath);
         $db->beginTransaction();
         $sth = $db->prepare('INSERT INTO entity (label, completion, scope, type, class, filepath) VALUES (?,?,?,?,?,?)');
 

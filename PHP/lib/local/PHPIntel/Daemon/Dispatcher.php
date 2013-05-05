@@ -28,19 +28,19 @@ class Dispatcher
     }
 
 
-    public static function executeCommand_scanFile($source_file, $php_intel_file) {
+    public static function executeCommand_scanFile($source_file, $sqlite_db_file) {
         $intel = new FileIntelBuilder();
         $entities = $intel->extractFromFile($source_file);
 
-        $dumper = new SQLiteDumper();
-        $dumper->dump($entities, $php_intel_file);
+        $dumper = new SQLiteDumper($sqlite_db_file);
+        $dumper->dump($entities);
 
         return self::successMessage();
     }
 
-    public static function executeCommand_autoComplete($file_text, $php_intel_file) {
-        $reader = new SQLiteReader();
-        $entities = $reader->read($php_intel_file);
+    public static function executeCommand_autoComplete($file_text, $sqlite_db_file) {
+        $reader = new SQLiteReader($sqlite_db_file);
+        $entities = $reader->read();
 
         $formatter = new Formatter();
         $completions = $formatter->formatEntitiesAsCompletions($entities);

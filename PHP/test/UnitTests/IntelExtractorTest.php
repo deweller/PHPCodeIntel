@@ -10,8 +10,6 @@ class IntelExtractorTest extends \PHPUnit_Framework_TestCase
     ////////////////////////////////////////////////////////////////////////
     // tests
 
-    // note that this test doesn't do anything yet!
-
     public function testExtractMethodSignatures()
     {
         $intel = new FileIntelBuilder();

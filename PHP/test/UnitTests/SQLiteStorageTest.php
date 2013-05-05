@@ -19,12 +19,12 @@ class SQLiteStorageTest extends \PHPUnit_Framework_TestCase
         // clear old test file
         if (file_exists($test_sqlite_filepath)) { unlink($test_sqlite_filepath); }
 
-        $dumper = new SQLiteDumper();
-        $dumper->dump($entities, $test_sqlite_filepath);
+        $dumper = new SQLiteDumper($test_sqlite_filepath);
+        $dumper->dump($entities);
         PHPUnit::assertTrue(file_exists($test_sqlite_filepath), "sqlite file not found");
 
-        $reader = new SQLiteReader();
-        $read_entities = $reader->read($test_sqlite_filepath);
+        $reader = new SQLiteReader($test_sqlite_filepath);
+        $read_entities = $reader->read();
 
         // see if what we read is what we expected
         PHPUnit::assertEquals($read_entities, $entities);

@@ -7,12 +7,14 @@
  */
 
 use PHPIntel\FileIntelBuilder;
-use PHPIntel\Dumper\FlatFileDumper;
+use PHPIntel\Dumper\SQLiteDumper;
 
 require dirname(__DIR__).'/bootstrap.php';
 
-$intel = new FileIntelBuilder();
-$entities = $intel->extractFromFile($GLOBALS['BASE_PATH'].'/test/data/SimpleClassOne.php');
+$sqlite_db_file = '/tmp/test_dump.sqlite3';
 
-$dumper = new FlatFileDumper();
-$dumper->dump($entities, './testdump.txt');
+$intel = new FileIntelBuilder();
+$entities = $intel->extractFromFile($source_file);
+
+$dumper = new SQLiteDumper($sqlite_db_file);
+$dumper->dump($entities);

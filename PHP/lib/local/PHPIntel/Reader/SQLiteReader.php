@@ -14,17 +14,20 @@ use \Exception;
 */
 class SQLiteReader
 {
-    public function __construct()
+    protected $sqlite_filepath = null;
+
+    public function __construct($sqlite_filepath)
     {
+        $this->sqlite_filepath = $sqlite_filepath;
     }
 
-    public function read($filepath)
+    public function read()
     {
 
         $entities = array();
 
-        if (file_exists($filepath)) {
-            $db = SQLite::getDBHandle($filepath);
+        if (file_exists($this->sqlite_filepath)) {
+            $db = SQLite::getDBHandle($this->sqlite_filepath);
             $sql = "SELECT * FROM entity";
             foreach ($db->query($sql, \PDO::FETCH_ASSOC) as $row) {
                 $entities[] = new Entity($row);
