@@ -11,7 +11,9 @@ use PHPIntel\Daemon\Daemon;
 
 require __DIR__.'/bootstrap.php';
 
-Logger::log('starting daemon');
-$daemon = new Daemon(20001);
+$port = isset($_SERVER['argv'][1]) ? $_SERVER['argv'][1] : 20001;
+
+Logger::log('starting daemon on port '.$port);
+$daemon = new Daemon($port);
 $daemon->run();
 

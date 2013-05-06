@@ -90,22 +90,23 @@ class PhpCodeIntelBase:
         sock = None
         try:
             sock = self.connectToSocket()
+        except socket.error, e:
+            self.debugMsg("e.errno="+str(e.errno))
+            if e.errno == 61:
+                # connection refused - try restarting daemon
+                self.debugMsg("starting daemon")
+                self.startPHPDaemon()
+
+                # wait 250ms for daemon to start
+                time.sleep(0.25)
+
+                # connect again
+                sock = self.connectToSocket()
         except Exception, e:
-            if 'errno' in e:
-                if e.errno == 61:
-                    # connection refused - try restarting daemon
-                    self.debugMsg("starting daemon")
-                    self.startPHPDaemon()
-
-                    # wait 250ms for daemon to start
-                    time.sleep(0.25)
-
-                    # connect again
-                    sock = self.connectToSocket()
-
+            self.debugMsg("error starting PHP daemon: %s" % e)
 
         if not sock:
-            self.warnMsg("unable to connect to socket on port "+str(self.getSetting('port', 20001)))
+            self.warnMsg("unable to connect to socket on port "+str(self.getSetting('daemon_port', 20001)))
             return
 
         netstring = str(len(message))+":"+message+","
@@ -125,7 +126,7 @@ class PhpCodeIntelBase:
     def connectToSocket(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(5)
-        sock.connect(('127.0.0.1', self.getSetting('port', 20001)))
+        sock.connect(('127.0.0.1', int(self.getSetting('daemon_port', 20001))))
         return sock
 
 
@@ -136,6 +137,7 @@ class PhpCodeIntelBase:
         args = []
         args.append("php")
         args.append("daemon.php")
+        args.append(str(self.getSetting('daemon_port', 20001)))
 
         # Hide the console window on Windows
         startupinfo = None
