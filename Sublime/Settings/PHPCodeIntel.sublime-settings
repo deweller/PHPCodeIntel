@@ -20,7 +20,8 @@
     // "settings": {
     //     "PHPCodeIntel": {
     //         "autocomplete_enabled": false,
-    //         "project_root": "/Users/dweller/Library/Application Support/Sublime Text 2/Packages/PHPCodeIntel/PHP"
+    //         "project_root": "/Users/dweller/Library/Application Support/Sublime Text 2/Packages/PHPCodeIntel/PHP",
+    //         "include_dirs": ["/my/path/to/lib/vendor"]
     //     }
     // } 
 

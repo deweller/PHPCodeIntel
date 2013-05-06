@@ -17,7 +17,7 @@ class FileIntelBuilder
 
 
     /**
-     * Description
+     * extracts entities from a file
      * @param type $file 
      * @return type
      */

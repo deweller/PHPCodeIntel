@@ -50,6 +50,7 @@ class Daemon
             // Logger::log("cmd_array: ".print_r($cmd_array, true));
             if ($cmd_array) {
                 Logger::log("cmd: ".$cmd_array['cmd']);
+                // Logger::log("full cmd: ".print_r($cmd_array, true));
                 $response = \PHPIntel\Daemon\Dispatcher::dispatchCommand($cmd_array);
                 $conn->write(json_encode($response));
             } else {

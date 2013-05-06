@@ -3,6 +3,7 @@
 namespace PHPIntel\Daemon;
 
 use PHPIntel\Dumper\SQLiteDumper;
+use PHPIntel\Scanner\ProjectScanner;
 use PHPIntel\Completions\Formatter;
 use PHPIntel\Reader\SQLiteReader;
 use PHPIntel\FileIntelBuilder;
@@ -34,6 +35,15 @@ class Dispatcher
 
         $dumper = new SQLiteDumper($sqlite_db_file);
         $dumper->dump($entities);
+
+        return self::successMessage();
+    }
+
+    public static function executeCommand_scanProject($include_dirs, $sqlite_db_file) {
+        $dumper = new SQLiteDumper($sqlite_db_file);
+        $intel = new FileIntelBuilder();
+        $scanner = new ProjectScanner(array('include_dirs' => $include_dirs));
+        $scanner->scanAndDumpProject($intel, $dumper);
 
         return self::successMessage();
     }

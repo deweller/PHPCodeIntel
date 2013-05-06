@@ -162,8 +162,25 @@ class PhpCodeIntelScanFileCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
         src_file = self.view.file_name()
         if src_file == None:
             return
-        dest_file = self.getProjectRoot(self.view, src_file) + '/.php_intel.sqlite3'
-        self.runRemoteCommandInPHPDaemon('scanFile', [src_file, dest_file])
+        db_file = self.getProjectRoot(self.view, src_file) + '/.php_intel.sqlite3'
+        self.runRemoteCommandInPHPDaemon('scanFile', [src_file, db_file])
+
+# scans a single file
+class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
+
+    def run(self, edit):
+        self.loadSettings(self.view)
+        
+        src_file = self.view.file_name()
+        if src_file == None:
+            return
+        project_root = self.getProjectRoot(self.view, src_file)
+
+        include_dirs = []
+        include_dirs.append(project_root)
+
+        db_file = project_root + '/.php_intel.sqlite3'
+        self.runRemoteCommandInPHPDaemon('scanProject', [include_dirs, db_file])
 
 
 
