@@ -17,6 +17,9 @@ class SQLite
 
         // create the tables if they don't exist yet
         if (!$file_exists) {
+            
+            $db->exec("PRAGMA synchronous = NORMAL"); // we value speed over crash-proof data
+
             $db->exec("
 CREATE TABLE IF NOT EXISTS entity (
     label TEXT,

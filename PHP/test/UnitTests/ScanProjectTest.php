@@ -1,6 +1,7 @@
 <?php
 
 use PHPIntel\Scanner\ProjectScanner;
+use PHPIntel\Test\EntityBuilder;
 use PHPIntel\Intel\IntelBuilder;
 use PHPIntel\Reader\SQLiteReader;
 use PHPIntel\Dumper\SQLiteDumper;
@@ -33,7 +34,7 @@ class ScanProjectTest extends \PHPUnit_Framework_TestCase
         // read scanned dirs
         $reader = new SQLiteReader($test_sqlite_filepath);
         $read_entities = $reader->read();
-        $expected_entities = $this->buildTestEntities();
+        $expected_entities = EntityBuilder::buildTestEntities('project_entities.yaml');
 
         PHPUnit::assertEquals($expected_entities, $read_entities);
 
@@ -44,15 +45,4 @@ class ScanProjectTest extends \PHPUnit_Framework_TestCase
     ////////////////////////////////////////////////////////////////////////
     // util
 
-    protected function buildTestEntities()
-    {
-        $test_entities = array();
-        $entities_data = yaml_parse_file($GLOBALS['BASE_PATH'].'/test/yaml/project_entities.yaml');
-
-        foreach ($entities_data['project'] as $entities_entry) {
-            $test_entities[] = new Entity($entities_entry);
-        }
-
-        return $test_entities;
-    }
 }

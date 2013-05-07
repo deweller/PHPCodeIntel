@@ -13,8 +13,16 @@ use PHPIntel\Logger\Logger;
 class EntityBuilderVisitor extends \PHPParser_NodeVisitorAbstract
 {
 
+    protected $source_file = null;
+
     protected $intel_entities = array();
     protected $pretty_printer = null;
+
+
+    public function __construct($source_file=null)
+    {
+        if ($source_file !== null) { $this->source_file = $source_file; }
+    }
 
     public function enterNode(\PHPParser_Node $node)
     {
@@ -39,9 +47,10 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitorAbstract
         $params_text = $this->buildParamsText($node->params);
 
         $this->intel_entities[] = new Entity(array(
-            // 'context'    => 'public:method:className', // not implemented yet.  perhaps scope (public), type (method), class (classname)
+            // 'context' => 'public:method:className', // not implemented yet.  perhaps scope (public), type (method), class (classname)
             'label'      => $function_name,
             'completion' => "{$function_name}({$params_text})",
+            'filepath'   => $this->source_file,
         ));
     }
 

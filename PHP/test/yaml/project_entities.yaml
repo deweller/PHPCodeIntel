@@ -1,47 +1,46 @@
-project:
-    -
-        label: methodBaseOne
-        completion: methodBaseOne()
-        scope: null
-        type: null
-        class: null
-        filepath: null
+-
+    label: methodBaseOne
+    completion: methodBaseOne()
+    scope: null
+    type: null
+    class: null
+    filepath: ==data_path==/sample_project/lib/BaseClassOne.php
 
-    -
-        label: methodBaseTwo
-        completion: methodBaseTwo($var_one)
-        scope: null
-        type: null
-        class: null
-        filepath: null
+-
+    label: methodBaseTwo
+    completion: methodBaseTwo($var_one)
+    scope: null
+    type: null
+    class: null
+    filepath: ==data_path==/sample_project/lib/BaseClassOne.php
 
-        # this should be overwritten
-    -
-        label: methodBaseTwo
-        completion: methodBaseTwo($var_one)
-        scope: null
-        type: null
-        class: null
-        filepath: null
-    -
-        label: methodChildOne
-        completion: "methodChildOne()"
-        scope: null
-        type: null
-        class: null
-        filepath: null
+    # this should be overwritten
+-
+    label: methodBaseTwo
+    completion: methodBaseTwo($var_one)
+    scope: null
+    type: null
+    class: null
+    filepath: ==data_path==/sample_project/lib/Sub/ChildClassOne.php
+-
+    label: methodChildOne
+    completion: "methodChildOne()"
+    scope: null
+    type: null
+    class: null
+    filepath: ==data_path==/sample_project/lib/Sub/ChildClassOne.php
 
-    -
-        label: methodAcmeOne
-        completion: methodAcmeOne()
-        scope: null
-        type: null
-        class: null
-        filepath: null
-    -
-        label: methodAcmeTwo
-        completion: methodAcmeTwo($var_one)
-        scope: null
-        type: null
-        class: null
-        filepath: null
+-
+    label: methodAcmeOne
+    completion: methodAcmeOne()
+    scope: null
+    type: null
+    class: null
+    filepath: ==data_path==/sample_project/vendor/Acme/AcmeClassOne.php
+-
+    label: methodAcmeTwo
+    completion: methodAcmeTwo($var_one)
+    scope: null
+    type: null
+    class: null
+    filepath: ==data_path==/sample_project/vendor/Acme/AcmeClassOne.php

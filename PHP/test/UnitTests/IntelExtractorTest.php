@@ -1,6 +1,7 @@
 <?php
 
 use PHPIntel\Intel\IntelBuilder;
+use PHPIntel\Test\EntityBuilder;
 use PHPIntel\Entity\Entity;
 
 use \PHPUnit_Framework_Assert as PHPUnit;
@@ -12,10 +13,11 @@ class IntelExtractorTest extends \PHPUnit_Framework_TestCase
 
     public function testExtractMethodSignatures()
     {
+
         $intel = new IntelBuilder();
         $parsed_entities = $intel->extractFromFile($GLOBALS['BASE_PATH'].'/test/data/SimpleClassOne.php');
 
-        $expected_entities = $this->buildTestEntities();
+        $expected_entities = EntityBuilder::buildTestEntities('entities.yaml');
 
         PHPUnit::assertEquals($expected_entities, $parsed_entities);
     }
@@ -23,15 +25,4 @@ class IntelExtractorTest extends \PHPUnit_Framework_TestCase
     ////////////////////////////////////////////////////////////////////////
     // util
 
-    protected function buildTestEntities()
-    {
-        $test_entities = array();
-        $entities_data = yaml_parse_file($GLOBALS['BASE_PATH'].'/test/yaml/entities.yaml');
-
-        foreach ($entities_data['SimpleClassOne'] as $entities_entry) {
-            $test_entities[] = new Entity($entities_entry);
-        }
-
-        return $test_entities;
-    }
 }

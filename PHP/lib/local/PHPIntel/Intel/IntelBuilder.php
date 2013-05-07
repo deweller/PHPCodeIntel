@@ -23,7 +23,7 @@ class IntelBuilder
      */
     public function extractFromFile($file)
     {
-        $intel_collector = new EntityBuilderVisitor();
+        $intel_collector = new EntityBuilderVisitor(realpath($file));
 
         $parser = new \PHPParser_Parser(new \PHPParser_Lexer());
         $traverser = new \PHPParser_NodeTraverser();
