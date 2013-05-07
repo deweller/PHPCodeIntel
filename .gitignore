@@ -4,3 +4,4 @@ var/log/*
 *.sublime-project
 *.sublime-workspace
 .tags*
+PHP/test/data/sample_project/.*.sqlite3

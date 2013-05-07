@@ -1,15 +1,16 @@
 <?php
 
-namespace PHPIntel\Collector;
+namespace PHPIntel\Intel\Visitor;
+
 
 use PHPIntel\Entity\Entity;
 use PHPIntel\Logger\Logger;
 
 /*
-* IntelCollector
+* EntityBuilderVisitor
 * collects interesting entities from a php class file
 */
-class IntelCollector extends \PHPParser_NodeVisitorAbstract
+class EntityBuilderVisitor extends \PHPParser_NodeVisitorAbstract
 {
 
     protected $intel_entities = array();

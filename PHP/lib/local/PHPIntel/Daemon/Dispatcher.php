@@ -6,7 +6,7 @@ use PHPIntel\Dumper\SQLiteDumper;
 use PHPIntel\Scanner\ProjectScanner;
 use PHPIntel\Completions\Formatter;
 use PHPIntel\Reader\SQLiteReader;
-use PHPIntel\FileIntelBuilder;
+use PHPIntel\Intel\IntelBuilder;
 
 use \Exception;
 
@@ -30,7 +30,7 @@ class Dispatcher
 
 
     public static function executeCommand_scanFile($source_file, $sqlite_db_file) {
-        $intel = new FileIntelBuilder();
+        $intel = new IntelBuilder();
         $entities = $intel->extractFromFile($source_file);
 
         $dumper = new SQLiteDumper($sqlite_db_file);
@@ -41,7 +41,7 @@ class Dispatcher
 
     public static function executeCommand_scanProject($include_dirs, $sqlite_db_file) {
         $dumper = new SQLiteDumper($sqlite_db_file);
-        $intel = new FileIntelBuilder();
+        $intel = new IntelBuilder();
         $scanner = new ProjectScanner(array('include_dirs' => $include_dirs));
         $scanner->scanAndDumpProject($intel, $dumper);
 

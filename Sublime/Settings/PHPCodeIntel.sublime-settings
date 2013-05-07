@@ -1,5 +1,6 @@
 {
 
+
     // the TCP/IP port on which the PHP daemon runs
     //  (note that this isn't actually implemented yet - the daemon always runs on port 20001 for now)
     "daemon_port": "20001",
@@ -24,5 +25,8 @@
     //         "include_dirs": ["/my/path/to/lib/vendor"]
     //     }
     // } 
+
+    // project level settings
+    // "project_root": "/path/to/my/project" 
 
 }

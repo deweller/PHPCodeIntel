@@ -3,7 +3,7 @@
 namespace PHPIntel\Scanner;
 
 use PHPIntel\Dumper\Dumper;
-use PHPIntel\FileIntelBuilder;
+use PHPIntel\Intel\IntelBuilder;
 use PHPIntel\Scanner\Iterator\ProjectIterator;
 use PHPIntel\Logger\Logger;
 
@@ -21,7 +21,7 @@ class ProjectScanner
         if ($settings !== null) { $this->settings = $settings; }
     }
 
-    public function scanAndDumpProject(FileIntelBuilder $intel, Dumper $dumper)
+    public function scanAndDumpProject(IntelBuilder $intel, Dumper $dumper)
     {
         if (!isset($this->settings['include_dirs'])) { throw new Exception("Directories to scan not found.", 1); }
 

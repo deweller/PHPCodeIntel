@@ -1,15 +1,15 @@
 <?php
 
-namespace PHPIntel;
+namespace PHPIntel\Intel;
 
-use PHPIntel\Collector\IntelCollector;
+use PHPIntel\Intel\Visitor\EntityBuilderVisitor;
 
 
 /*
-* FileIntelBuilder
+* IntelBuilder
 * extracts entities from a file
 */
-class FileIntelBuilder
+class IntelBuilder
 {
     public function __construct()
     {
@@ -23,7 +23,7 @@ class FileIntelBuilder
      */
     public function extractFromFile($file)
     {
-        $intel_collector = new IntelCollector();
+        $intel_collector = new EntityBuilderVisitor();
 
         $parser = new \PHPParser_Parser(new \PHPParser_Lexer());
         $traverser = new \PHPParser_NodeTraverser();

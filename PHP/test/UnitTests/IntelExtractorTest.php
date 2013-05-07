@@ -1,6 +1,6 @@
 <?php
 
-use PHPIntel\FileIntelBuilder;
+use PHPIntel\Intel\IntelBuilder;
 use PHPIntel\Entity\Entity;
 
 use \PHPUnit_Framework_Assert as PHPUnit;
@@ -12,7 +12,7 @@ class IntelExtractorTest extends \PHPUnit_Framework_TestCase
 
     public function testExtractMethodSignatures()
     {
-        $intel = new FileIntelBuilder();
+        $intel = new IntelBuilder();
         $parsed_entities = $intel->extractFromFile($GLOBALS['BASE_PATH'].'/test/data/SimpleClassOne.php');
 
         $expected_entities = $this->buildTestEntities();

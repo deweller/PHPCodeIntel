@@ -1,7 +1,7 @@
 <?php
 
 use PHPIntel\Scanner\ProjectScanner;
-use PHPIntel\FileIntelBuilder;
+use PHPIntel\Intel\IntelBuilder;
 use PHPIntel\Reader\SQLiteReader;
 use PHPIntel\Dumper\SQLiteDumper;
 use PHPIntel\Entity\Entity;
@@ -21,7 +21,7 @@ class ScanProjectTest extends \PHPUnit_Framework_TestCase
 
         $dumper = new SQLiteDumper($test_sqlite_filepath);
 
-        $intel = new FileIntelBuilder();
+        $intel = new IntelBuilder();
         $scanner = new ProjectScanner(array(
             'include_dirs' => array(
                 $GLOBALS['BASE_PATH'].'/test/data/sample_project/lib',
