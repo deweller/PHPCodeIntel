@@ -77,7 +77,7 @@ class PhpCodeIntelBase:
         payload['cmd'] = command
         payload['args'] = args
         json_string = self.sendMessageToPHPDaemon(json.dumps(payload))
-        if json_string == None:
+        if json_string == None or json_string == '':
             self.debugMsg("self.runRemoteCommandInPHPDaemon response: None")
             return
         response = json.loads(json_string)
@@ -167,7 +167,7 @@ class PhpCodeIntelScanFileCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
         db_file = self.getProjectRoot(self.view, src_file) + '/.php_intel.sqlite3'
         self.runRemoteCommandInPHPDaemon('scanFile', [src_file, db_file])
 
-# scans a single file
+# scans a project
 class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
 
     def run(self, edit):
@@ -185,6 +185,12 @@ class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextComman
         self.runRemoteCommandInPHPDaemon('scanProject', [include_dirs, db_file])
 
 
+# tells the daemon to stop
+class PhpCodeIntelShutdownDaemonCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
+
+    def run(self, edit):
+        self.loadSettings(self.view)
+        self.runRemoteCommandInPHPDaemon('quit', [])
 
 ##############################################################################################################################
 # Autocomplete

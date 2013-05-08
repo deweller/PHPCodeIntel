@@ -1,0 +1,10 @@
+[
+    {
+        "caption": "PHPCodeIntel: Scan Project",
+        "command": "php_code_intel_scan_project"
+    },
+    {
+        "caption": "PHPCodeIntel: Shutdown Intel Daemon",
+        "command": "php_code_intel_shutdown_daemon"
+    }
+]

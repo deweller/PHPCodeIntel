@@ -42,7 +42,8 @@ class Daemon
 
     public function handleNewConnection($conn) {
         $net_string = '';
-        $conn->on('data', function ($data) use ($conn, &$net_string) {
+        $loop = $this->loop;
+        $conn->on('data', function ($data) use ($loop, $conn, &$net_string) {
           $net_string .= $data;
           if ($message_text = NetString::parse(trim($net_string))) {
 
@@ -50,8 +51,18 @@ class Daemon
             // Logger::log("cmd_array: ".print_r($cmd_array, true));
             if ($cmd_array) {
                 Logger::log("cmd: ".$cmd_array['cmd']);
-                // Logger::log("full cmd: ".print_r($cmd_array, true));
-                $response = \PHPIntel\Daemon\Dispatcher::dispatchCommand($cmd_array);
+
+                if ($cmd_array['cmd'] == 'quit') {
+                    // write response and end loop
+                    $conn->write(json_encode(Dispatcher::successMessage("ok")));
+                    $conn->end();
+                    Logger::log("shutting down");
+                    $loop->stop();
+                } else {
+                    // Logger::log("full cmd: ".print_r($cmd_array, true));
+                    $response = \PHPIntel\Daemon\Dispatcher::dispatchCommand($cmd_array);
+                }
+
                 $conn->write(json_encode($response));
             } else {
 
