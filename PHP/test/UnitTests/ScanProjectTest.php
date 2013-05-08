@@ -38,9 +38,17 @@ class ScanProjectTest extends \PHPUnit_Framework_TestCase
 
         PHPUnit::assertEquals($expected_entities, $read_entities);
 
+        // run again and make sure entities are cleared first and not double-added
+        $scanner->scanAndDumpProject($intel, $dumper);
+        $read_entities = $reader->read();
+        PHPUnit::assertEquals($expected_entities, $read_entities);
+
         // clean up
         if (file_exists($test_sqlite_filepath)) { unlink($test_sqlite_filepath); }
     }
+
+
+
 
     ////////////////////////////////////////////////////////////////////////
     // util

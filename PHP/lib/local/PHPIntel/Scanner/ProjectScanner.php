@@ -29,7 +29,8 @@ class ProjectScanner
         foreach($project_iterator as $path) {
             // for every file in the poject extract the intel and add it to the data store
             $entities = $intel->extractFromFile($path);
-            $dumper->dump($entities);
+
+            $dumper->replaceEntitiesInFile($entities, $path);
         }
 
     }
