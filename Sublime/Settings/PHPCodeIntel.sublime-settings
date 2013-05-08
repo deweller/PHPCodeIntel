@@ -2,8 +2,10 @@
 
 
     // the TCP/IP port on which the PHP daemon runs
-    //  (note that this isn't actually implemented yet - the daemon always runs on port 20001 for now)
     "daemon_port": "20001",
+
+    // the path to your php executable
+    "php_path": "/usr/bin/php",
 
     // allow autocompletions
     "autocomplete_enabled": true,

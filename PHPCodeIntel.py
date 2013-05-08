@@ -135,7 +135,7 @@ class PhpCodeIntelBase:
         self.debugMsg("startPHPDaemon")
 
         args = []
-        args.append("php")
+        args.append(self.getSetting('php_path','/usr/bin/php'))
         args.append("daemon.php")
         args.append(str(self.getSetting('daemon_port', 20001)))
 
