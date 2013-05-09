@@ -34,7 +34,7 @@ class Dispatcher
         $entities = $intel->extractFromFile($source_file);
 
         $dumper = new SQLiteDumper($sqlite_db_file);
-        $dumper->dump($entities);
+        $dumper->replaceEntitiesInFile($entities, $source_file);
 
         return self::successMessage();
     }
