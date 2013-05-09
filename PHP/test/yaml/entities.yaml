@@ -2,23 +2,69 @@
     label: functionOne
     completion: functionOne()
     filepath: ==data_path==/SimpleClassOne.php
+    scope: public
+    type: method
+    class: null
+
 -
     label: functionTwo
     completion: functionTwo($var_one)
     filepath: ==data_path==/SimpleClassOne.php
+    scope: public
+    type: method
+    class: null
+
 -
     label: functionThree
     completion: "functionThree($var_one, $var_two='default')"
     filepath: ==data_path==/SimpleClassOne.php
+    scope: public
+    type: method
+    class: null
+
 -
     label: functionFour
     completion: "functionFour($var_one, &$ref_var_two, array $var_three_array)"
     filepath: ==data_path==/SimpleClassOne.php
+    scope: public
+    type: method
+    class: null
+
 -
     label: functionFive
     completion: "functionFive($var_one, SimpleClassOne $class_two)"
     filepath: ==data_path==/SimpleClassOne.php
+    scope: public
+    type: method
+    class: null
+
 -
     label: functionSix
     completion: "functionSix($var_one=null)"
     filepath: ==data_path==/SimpleClassOne.php
+    scope: public
+    type: method
+    class: null
+
+-
+    label: statOnePub
+    completion: "statOnePub()"
+    filepath: ==data_path==/SimpleClassOne.php
+    scope: public
+    type: staticmethod
+    class: null
+-
+    label: statOnePro
+    completion: "statOnePro()"
+    filepath: ==data_path==/SimpleClassOne.php
+    scope: protected
+    type: staticmethod
+    class: null
+-
+    label: proOne
+    completion: "proOne($var_one=null)"
+    filepath: ==data_path==/SimpleClassOne.php
+    scope: protected
+    type: method
+    class: null
+

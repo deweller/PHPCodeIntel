@@ -1,16 +1,32 @@
 -
     label: methodBaseOne
     completion: methodBaseOne()
-    scope: null
-    type: null
+    scope: public
+    type: method
     class: null
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
 
 -
     label: methodBaseTwo
     completion: methodBaseTwo($var_one)
-    scope: null
-    type: null
+    scope: public
+    type: method
+    class: null
+    filepath: ==data_path==/sample_project/lib/BaseClassOne.php
+
+-
+    label: methodProOne
+    completion: methodProOne()
+    scope: protected
+    type: method
+    class: null
+    filepath: ==data_path==/sample_project/lib/BaseClassOne.php
+
+-
+    label: staticOne
+    completion: staticOne()
+    scope: public
+    type: staticmethod
     class: null
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
 
@@ -18,29 +34,29 @@
 -
     label: methodBaseTwo
     completion: methodBaseTwo($var_one)
-    scope: null
-    type: null
+    scope: public
+    type: method
     class: null
     filepath: ==data_path==/sample_project/lib/Sub/ChildClassOne.php
 -
     label: methodChildOne
     completion: "methodChildOne()"
-    scope: null
-    type: null
+    scope: public
+    type: method
     class: null
     filepath: ==data_path==/sample_project/lib/Sub/ChildClassOne.php
 
 -
     label: methodAcmeOne
     completion: methodAcmeOne()
-    scope: null
-    type: null
+    scope: public
+    type: method
     class: null
     filepath: ==data_path==/sample_project/vendor/Acme/AcmeClassOne.php
 -
     label: methodAcmeTwo
     completion: methodAcmeTwo($var_one)
-    scope: null
-    type: null
+    scope: public
+    type: method
     class: null
     filepath: ==data_path==/sample_project/vendor/Acme/AcmeClassOne.php

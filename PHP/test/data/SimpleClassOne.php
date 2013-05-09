@@ -11,6 +11,10 @@ class SimpleClassOne {
   public function functionFive($var_one, SimpleClassOne $class_two) { return 'blah'; }
   public function functionSix($var_one=null) { return 'blah'; }
 
+  public static function statOnePub() { return 'blah'; }
+  protected static function statOnePro() { return 'blah'; }
+  protected function proOne($var_one=null) { return 'blah'; }
+
 }
 
 // view.run_command("php_code_intel_scan_file")

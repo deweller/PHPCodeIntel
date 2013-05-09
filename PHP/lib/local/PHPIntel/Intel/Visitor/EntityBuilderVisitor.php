@@ -46,11 +46,16 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitorAbstract
 
         $params_text = $this->buildParamsText($node->params);
 
+
+
         $this->intel_entities[] = new Entity(array(
             // 'context' => 'public:method:className', // not implemented yet.  perhaps scope (public), type (method), class (classname)
             'label'      => $function_name,
             'completion' => "{$function_name}({$params_text})",
             'filepath'   => $this->source_file,
+            'scope'      => $this->scopeFromNode($node),
+            'type'       => $this->typeOfMethodFromNode($node),
+            'class'      => null,
         ));
     }
 
@@ -94,6 +99,27 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitorAbstract
             $this->pretty_printer = new \PHPParser_PrettyPrinter_Zend();
         }
         return $this->pretty_printer;
+    }
+
+    protected function scopeFromNode($node)
+    {
+        switch (true) {
+            case $node->isPublic($node):
+                return 'public';
+            case $node->isProtected($node):
+                return 'protected';
+            case $node->isPrivate($node):
+                return 'private';
+        }
+
+        return 'unknown';
+    }
+
+    protected function typeOfMethodFromNode($node) {
+        if ($node->isStatic($node)) {
+            return 'staticmethod';
+        }
+        return 'method';
     }
 
 }
