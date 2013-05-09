@@ -45,6 +45,10 @@ class PhpCodeIntelBase:
 
     # find the top level folder in sublime
     def getProjectRoot(self, view, filename):
+        project_root = self.getSetting('project_root', None)
+        if project_root != None:
+            return project_root
+
         folders = view.window().folders()
         path = os.path.dirname(filename)
 
