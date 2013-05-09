@@ -4,7 +4,7 @@
     filepath: ==data_path==/SimpleClassOne.php
     scope: public
     type: method
-    class: null
+    class: SimpleClassOne
 
 -
     label: functionTwo
@@ -12,7 +12,7 @@
     filepath: ==data_path==/SimpleClassOne.php
     scope: public
     type: method
-    class: null
+    class: SimpleClassOne
 
 -
     label: functionThree
@@ -20,7 +20,7 @@
     filepath: ==data_path==/SimpleClassOne.php
     scope: public
     type: method
-    class: null
+    class: SimpleClassOne
 
 -
     label: functionFour
@@ -28,7 +28,7 @@
     filepath: ==data_path==/SimpleClassOne.php
     scope: public
     type: method
-    class: null
+    class: SimpleClassOne
 
 -
     label: functionFive
@@ -36,7 +36,7 @@
     filepath: ==data_path==/SimpleClassOne.php
     scope: public
     type: method
-    class: null
+    class: SimpleClassOne
 
 -
     label: functionSix
@@ -44,7 +44,7 @@
     filepath: ==data_path==/SimpleClassOne.php
     scope: public
     type: method
-    class: null
+    class: SimpleClassOne
 
 -
     label: statOnePub
@@ -52,19 +52,19 @@
     filepath: ==data_path==/SimpleClassOne.php
     scope: public
     type: staticmethod
-    class: null
+    class: SimpleClassOne
 -
     label: statOnePro
     completion: "statOnePro()"
     filepath: ==data_path==/SimpleClassOne.php
     scope: protected
     type: staticmethod
-    class: null
+    class: SimpleClassOne
 -
     label: proOne
     completion: "proOne($var_one=null)"
     filepath: ==data_path==/SimpleClassOne.php
     scope: protected
     type: method
-    class: null
+    class: SimpleClassOne
 

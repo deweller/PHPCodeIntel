@@ -10,13 +10,14 @@ use PHPIntel\Logger\Logger;
 * EntityBuilderVisitor
 * collects interesting entities from a php class file
 */
-class EntityBuilderVisitor extends \PHPParser_NodeVisitorAbstract
+class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
 {
 
     protected $source_file = null;
 
     protected $intel_entities = array();
     protected $pretty_printer = null;
+    protected $current_class_name = null;
 
 
     public function __construct($source_file=null)
@@ -26,10 +27,26 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitorAbstract
 
     public function enterNode(\PHPParser_Node $node)
     {
+        parent::enterNode($node);
+
         switch ($node->getType()) {
             // delegate to $this->enterNode_Stmt_ClassMethod($node);
+            case 'Stmt_Class':
             case 'Stmt_ClassMethod':
                 $method = "enterNode_".$node->getType();
+                call_user_func(array($this, $method), $node);
+                break;
+        }
+    }
+
+    public function leaveNode(\PHPParser_Node $node)
+    {
+        parent::leaveNode($node);
+
+        switch ($node->getType()) {
+            // delegate to $this->leaveNode_Stmt_ClassMethod($node);
+            case 'Stmt_Class':
+                $method = "leaveNode_".$node->getType();
                 call_user_func(array($this, $method), $node);
                 break;
         }
@@ -40,7 +57,6 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitorAbstract
     }
 
 
-
     protected function enterNode_Stmt_ClassMethod($node) {
         $function_name = $node->name;
 
@@ -49,15 +65,25 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitorAbstract
 
 
         $this->intel_entities[] = new Entity(array(
-            // 'context' => 'public:method:className', // not implemented yet.  perhaps scope (public), type (method), class (classname)
             'label'      => $function_name,
             'completion' => "{$function_name}({$params_text})",
             'filepath'   => $this->source_file,
             'scope'      => $this->scopeFromNode($node),
             'type'       => $this->typeOfMethodFromNode($node),
-            'class'      => null,
+            'class'      => $this->current_class_name,
         ));
     }
+
+    protected function enterNode_Stmt_Class($node) {
+        $this->current_class_name = $node->namespacedName;
+    } 
+
+    protected function leaveNode_Stmt_Class($node) {
+        $this->current_class_name = null;
+    } 
+
+
+
 
     protected function buildParamsText($params) {
         $all_params_text = '';
