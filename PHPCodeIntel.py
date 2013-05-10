@@ -94,7 +94,7 @@ class PhpCodeIntelBase:
         sock = None
         try:
             sock = self.connectToSocket()
-        except socket.error, e:
+        except socket.error as e:
             self.debugMsg("e.errno="+str(e.errno))
             if e.errno == 61:
                 # connection refused - try restarting daemon
@@ -106,7 +106,7 @@ class PhpCodeIntelBase:
 
                 # connect again
                 sock = self.connectToSocket()
-        except Exception, e:
+        except Exception as e:
             self.debugMsg("error starting PHP daemon: %s" % e)
 
         if not sock:
@@ -176,7 +176,7 @@ class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextComman
 
     def run(self, edit):
         self.loadSettings(self.view)
-        
+
         src_file = self.view.file_name()
         if src_file == None:
             return
@@ -203,6 +203,9 @@ class PhpCodeIntelShutdownDaemonCommand(PhpCodeIntelBase, sublime_plugin.TextCom
 class PhpCodeIntelAutoComplete(PhpCodeIntelBase, sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
+        if view.score_selector(locations[0], "source.php") == 0:
+            return []
+
         self.loadSettings(view)
         if self.getSetting('autocomplete_enabled', False) == True:
             src_file = view.file_name()
