@@ -203,6 +203,9 @@ class PhpCodeIntelShutdownDaemonCommand(PhpCodeIntelBase, sublime_plugin.TextCom
 class PhpCodeIntelAutoComplete(PhpCodeIntelBase, sublime_plugin.EventListener):
 
     def on_query_completions(self, view, prefix, locations):
+        if view.score_selector(locations[0], "source.php") == 0:
+            return []
+
         self.loadSettings(view)
         if self.getSetting('autocomplete_enabled', False) == True:
             src_file = view.file_name()
