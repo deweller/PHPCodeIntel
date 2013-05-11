@@ -3,6 +3,8 @@
 namespace PHPIntel\Daemon;
 
 use PHPIntel\Dumper\SQLiteDumper;
+use PHPIntel\Context\ContextBuilder;
+use PHPIntel\Logger\Logger;
 use PHPIntel\Scanner\ProjectScanner;
 use PHPIntel\Completions\Formatter;
 use PHPIntel\Reader\SQLiteReader;
@@ -48,7 +50,10 @@ class Dispatcher
         return self::successMessage();
     }
 
-    public static function executeCommand_autoComplete($file_text, $sqlite_db_file) {
+    public static function executeCommand_autoComplete($php_content, $current_position, $sqlite_db_file) {
+        $builder = new ContextBuilder();
+        $context = $builder->buildContext($php_content, $current_position);
+
         $reader = new SQLiteReader($sqlite_db_file);
         $entities = $reader->read();
 

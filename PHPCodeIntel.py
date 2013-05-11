@@ -210,12 +210,23 @@ class PhpCodeIntelAutoComplete(PhpCodeIntelBase, sublime_plugin.EventListener):
         if self.getSetting('autocomplete_enabled', False) == True:
             src_file = view.file_name()
             php_intel_file = self.getProjectRoot(view, src_file) + '/.php_intel.sqlite3'
-            completions_array = self.runRemoteCommandInPHPDaemon('autoComplete', ['', php_intel_file])
+
+            content = view.substr(sublime.Region(0, view.size()))
+            sel = view.sel()[0]
+            pos = sel.end()
+
+            completions_array = self.runRemoteCommandInPHPDaemon('autoComplete', [content, pos, php_intel_file])
 
             # convert completions array into tuples for python
             completions = []
             for item in completions_array:
                 completions.append((item[0], item[1]))
             return completions
+
+    def getContent(self, view):
+        content = view.substr(sublime.Region(0, view.size()))
+        sel = view.sel()[0]
+        pos = sel.end()
+        return 
 
 

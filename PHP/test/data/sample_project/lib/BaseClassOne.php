@@ -10,4 +10,5 @@ class BaseClassOne {
   protected function methodProOne() { return 'blah'; }
 
   public static function staticOne() { return 'blah'; }
+
 }
