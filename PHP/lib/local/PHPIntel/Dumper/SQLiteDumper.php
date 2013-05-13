@@ -46,9 +46,9 @@ class SQLiteDumper implements Dumper
 
     public function dumpEntities($db, $entities)
     {
-        $sth = $db->prepare('INSERT INTO entity (label, completion, scope, type, class, filepath) VALUES (?,?,?,?,?,?)');
+        $sth = $db->prepare('INSERT INTO entity (label, completion, filepath, class, type, visibility, scope) VALUES (?,?,?,?,?,?,?)');
         foreach($entities as $entity) {
-            $sth->execute(array($entity['label'], $entity['completion'], $entity['scope'], $entity['type'], $entity['class'], $entity['filepath']));
+            $sth->execute(array($entity['label'], $entity['completion'], $entity['filepath'], $entity['class'], $entity['type'], $entity['visibility'], $entity['scope']));
         }
     }
     protected function executeInDBTransaction($callback) {

@@ -25,11 +25,14 @@ CREATE TABLE IF NOT EXISTS entity (
     label TEXT,
     completion TEXT,
 
-    scope TEXT,
-    type TEXT,
+    filepath TEXT,
     class TEXT,
-    filepath TEXT
+    type TEXT,
+    visibility TEXT,
+    scope TEXT
 )");
+
+
             $db->exec("CREATE INDEX IF NOT EXISTS entity_completion_idx ON entity (completion)");
         }
 

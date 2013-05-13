@@ -43,21 +43,22 @@ class SQLiteStorageTest extends \PHPUnit_Framework_TestCase
                 'label'      => 'function1',
                 'completion' => 'function1($a, $b)',
 
-                'scope'      => null,
-                'type'       => null,
-                'class'      => null,
                 'filepath'   => null,
+                'class'      => null,
+                'type'       => null,
+                'visibility' => null,
+                'scope'      => null,
             )),
             new Entity(array(
                 'label'      => 'function2',
                 'completion' => 'function2($a, $b)',
 
-                'scope'      => null,
-                'type'       => null,
-                'class'      => null,
                 'filepath'   => null,
+                'class'      => null,
+                'type'       => null,
+                'visibility' => null,
+                'scope'      => null,
               )),
             );
     }
-
 }

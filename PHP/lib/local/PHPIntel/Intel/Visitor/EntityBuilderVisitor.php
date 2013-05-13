@@ -68,9 +68,10 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
             'label'      => $function_name,
             'completion' => "{$function_name}({$params_text})",
             'filepath'   => $this->source_file,
-            'scope'      => $this->scopeFromNode($node),
-            'type'       => $this->typeOfMethodFromNode($node),
             'class'      => $this->current_class_name,
+            'type'       => 'method',
+            'visibility' => $this->visibilityFromNode($node),
+            'scope'      => $this->scopeFromMethodNode($node),
         ));
     }
 
@@ -127,7 +128,7 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
         return $this->pretty_printer;
     }
 
-    protected function scopeFromNode($node)
+    protected function visibilityFromNode($node)
     {
         switch (true) {
             case $node->isPublic($node):
@@ -141,11 +142,11 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
         return 'unknown';
     }
 
-    protected function typeOfMethodFromNode($node) {
+    protected function scopeFromMethodNode($node) {
         if ($node->isStatic($node)) {
-            return 'staticmethod';
+            return 'static';
         }
-        return 'method';
+        return 'instance';
     }
 
 }

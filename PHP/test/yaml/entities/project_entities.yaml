@@ -1,62 +1,70 @@
 -
     label: methodBaseOne
     completion: methodBaseOne()
-    scope: public
-    type: method
-    class: BaseClassOne
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
+    class: BaseClassOne
+    type: method
+    visibility: public
+    scope: instance
 
 -
     label: methodBaseTwo
     completion: methodBaseTwo($var_one)
-    scope: public
-    type: method
-    class: BaseClassOne
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
+    class: BaseClassOne
+    type: method
+    visibility: public
+    scope: instance
 
 -
     label: methodProOne
     completion: methodProOne()
-    scope: protected
-    type: method
-    class: BaseClassOne
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
+    class: BaseClassOne
+    type: method
+    visibility: protected
+    scope: instance
 
 -
     label: staticOne
     completion: staticOne()
-    scope: public
-    type: staticmethod
-    class: BaseClassOne
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
+    class: BaseClassOne
+    type: method
+    visibility: public
+    scope: static
 
     # this should be overwritten
 -
     label: methodBaseTwo
     completion: methodBaseTwo($var_one)
-    scope: public
-    type: method
-    class: Sub\ChildClassOne
     filepath: ==data_path==/sample_project/lib/Sub/ChildClassOne.php
+    class: Sub\ChildClassOne
+    type: method
+    visibility: public
+    scope: instance
 -
     label: methodChildOne
     completion: "methodChildOne()"
-    scope: public
-    type: method
-    class: Sub\ChildClassOne
     filepath: ==data_path==/sample_project/lib/Sub/ChildClassOne.php
+    class: Sub\ChildClassOne
+    type: method
+    visibility: public
+    scope: instance
 
 -
     label: methodAcmeOne
     completion: methodAcmeOne()
-    scope: public
-    type: method
-    class: Acme\AcmeClassOne
     filepath: ==data_path==/sample_project/vendor/Acme/AcmeClassOne.php
+    class: Acme\AcmeClassOne
+    type: method
+    visibility: public
+    scope: instance
 -
     label: methodAcmeTwo
     completion: methodAcmeTwo($var_one)
-    scope: public
-    type: method
-    class: Acme\AcmeClassOne
     filepath: ==data_path==/sample_project/vendor/Acme/AcmeClassOne.php
+    class: Acme\AcmeClassOne
+    type: method
+    visibility: public
+    scope: instance
