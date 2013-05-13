@@ -65,28 +65,28 @@ class ContextBuilder
 
             // Classname::something
             case $token_0[0] == T_STRING AND $token_1[0] == T_DOUBLE_COLON AND $token_2[0] = T_STRING:
-                $context_data['type']   = 'static_op';
+                $context_data['scope']   = 'static';
                 $context_data['class']  = $token_0[1];
                 $context_data['prefix'] = $token_2[1];
                 break;
 
             // Classname::
             case $token_1[0] == T_STRING AND $token_2[0] == T_DOUBLE_COLON:
-                $context_data['type']   = 'static_op';
+                $context_data['scope']   = 'static';
                 $context_data['class']  = $token_1[1];
                 $context_data['prefix'] = '';
                 break;
 
             // $a->something
             case $token_0[0] == T_VARIABLE AND $token_1[0] == T_OBJECT_OPERATOR AND $token_2[0] = T_STRING:
-                $context_data['type']     = 'object_op';
+                $context_data['scope']     = 'instance';
                 $context_data['variable'] = $token_0[1];
                 $context_data['prefix']   = $token_2[1];
                 break;
 
             // $a->
             case $token_1[0] == T_VARIABLE AND $token_2[0] == T_OBJECT_OPERATOR:
-                $context_data['type']     = 'object_op';
+                $context_data['scope']     = 'instance';
                 $context_data['variable'] = $token_1[1];
                 $context_data['prefix']   = '';
                 break;

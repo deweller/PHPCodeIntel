@@ -1,28 +1,28 @@
 -
     php: "Flower::abc"
     context:
-        type: "static_op"
+        scope: "static"
         class: "Flower"
         prefix: "abc"
 
 -
     php: "Flower::"
     context:
-        type: "static_op"
+        scope: "static"
         class: "Flower"
         prefix: ""
 
 -
     php: "$a = new Flower(); $a->abc"
     context:
-        type: "object_op"
+        scope: "instance"
         variable: "$a"
         prefix: "abc"
 
 -
     php: "$a = new Flower(); $a->"
     context:
-        type: "object_op"
+        scope: "instance"
         variable: "$a"
         prefix: ""
 
