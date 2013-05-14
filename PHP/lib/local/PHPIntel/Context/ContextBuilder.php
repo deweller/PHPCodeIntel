@@ -3,9 +3,9 @@
 namespace PHPIntel\Context;
 
 use PHPIntel\Context\Parser\TolerantParser;
+use PHPIntel\Context\Visitor\VariableClassResolverVisitor;
 use PHPIntel\Context\Lexer\LexerUtil;
 use PHPIntel\Context\Lexer\Lexer;
-use PHPIntel\Context\Visitor\ContextBuilderVisitor;
 use PHPIntel\Context\Context;
 
 use PHPIntel\Logger\Logger;
@@ -23,18 +23,12 @@ class ContextBuilder
 
     public function buildContext($php_content, $current_position)
     {
-        $visitor = new ContextBuilderVisitor($current_position);
         $lexer = new Lexer();
         $parser = new TolerantParser($lexer);
-        $traverser = new \PHPParser_NodeTraverser();
-        $traverser->addVisitor($visitor);
 
         try {
             // parse into statements
-            $stmts = $parser->parse($php_content);
-
-            // the collector will visit all the nodes and collect data
-            $stmts = $traverser->traverse($stmts);
+            $statements = $parser->parse($php_content);
 
         } catch (Exception $e) {
             Logger::error($e);
@@ -43,13 +37,13 @@ class ContextBuilder
         $tokens = $lexer->getTokens();
         $position_map = LexerUtil::buildTokenPositionMap($tokens);
         
-        $context = $this->resolveContext($tokens, $position_map, $current_position);
+        $context = $this->resolveContext($tokens, $position_map, $current_position, $statements);
         return $context;
     }
 
 
 
-    public function resolveContext($tokens, $position_map, $str_position)
+    public function resolveContext($tokens, $position_map, $str_position, $statements)
     {
         $token_offset = LexerUtil::findTokenOffsetByStringPosition($tokens, $position_map, $str_position);
         if ($token_offset < 2) { return null; }
@@ -65,30 +59,32 @@ class ContextBuilder
 
             // Classname::something
             case $token_0[0] == T_STRING AND $token_1[0] == T_DOUBLE_COLON AND $token_2[0] = T_STRING:
-                $context_data['scope']   = 'static';
+                $context_data['scope']  = 'static';
                 $context_data['class']  = $token_0[1];
                 $context_data['prefix'] = $token_2[1];
                 break;
 
             // Classname::
             case $token_1[0] == T_STRING AND $token_2[0] == T_DOUBLE_COLON:
-                $context_data['scope']   = 'static';
+                $context_data['scope']  = 'static';
                 $context_data['class']  = $token_1[1];
                 $context_data['prefix'] = '';
                 break;
 
             // $a->something
             case $token_0[0] == T_VARIABLE AND $token_1[0] == T_OBJECT_OPERATOR AND $token_2[0] = T_STRING:
-                $context_data['scope']     = 'instance';
+                $context_data['scope']    = 'instance';
                 $context_data['variable'] = $token_0[1];
                 $context_data['prefix']   = $token_2[1];
+                $context_data['class']    = $this->resolveClassForVariable($context_data['variable'], $str_position, $statements);
                 break;
 
             // $a->
             case $token_1[0] == T_VARIABLE AND $token_2[0] == T_OBJECT_OPERATOR:
-                $context_data['scope']     = 'instance';
+                $context_data['scope']    = 'instance';
                 $context_data['variable'] = $token_1[1];
                 $context_data['prefix']   = '';
+                $context_data['class']    = $this->resolveClassForVariable($context_data['variable'], $str_position, $statements);
                 break;
             
             default:
@@ -101,5 +97,16 @@ class ContextBuilder
     }
 
 
+    protected function resolveClassForVariable($variable, $current_position, $statements)
+    {
+        // the collector will visit all the nodes and collect data
+        $visitor = new VariableClassResolverVisitor($variable, $current_position);
+        $traverser = new \PHPParser_NodeTraverser();
+        $traverser->addVisitor($visitor);
+        $traverser->traverse($statements);
+
+        // get the class name
+        return $visitor->getResolvedClassName();
+    }
 
 }

@@ -51,6 +51,8 @@ EOT;
         $this->assertEquals(array(T_VARIABLE,'$a'), LexerUtil::buildTokenDescriptionArray($tokens[$offset-2]));
     }
 
+
+
     public function testContextBuilder()
     {
         $test_specs = yaml_parse_file($GLOBALS['BASE_PATH'].'/test/yaml/context/contexts.yaml');
