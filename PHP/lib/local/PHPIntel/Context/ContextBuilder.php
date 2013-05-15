@@ -21,8 +21,9 @@ class ContextBuilder
     {
     }
 
-    public function buildContext($php_content, $current_position)
+    public function buildContext($full_php_content, $current_position)
     {
+        $php_content = substr($full_php_content, 0, $current_position);
         $lexer = new Lexer();
         $parser = new TolerantParser($lexer);
 

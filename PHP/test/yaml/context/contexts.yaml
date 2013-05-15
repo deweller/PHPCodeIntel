@@ -1,3 +1,6 @@
+# this is test data for the ContextBuilderTest
+
+####################################
 -
     php: "Flower::abc"
     context:
@@ -5,6 +8,7 @@
         class: "Flower"
         prefix: "abc"
 
+####################################
 -
     php: "Flower::"
     context:
@@ -12,6 +16,7 @@
         class: "Flower"
         prefix: ""
 
+####################################
 -
     php: |-
         $a = new Flower();
@@ -22,6 +27,7 @@
         prefix: "abc"
         class: "Flower"
 
+####################################
 -
     php: |-
         $a = new Flower();
@@ -32,4 +38,53 @@
         prefix: ""
         class: "Flower"
 
+####################################
+-
+    php: |-
+        $a = new Flower();
+        $a->
+    context:
+        scope: "instance"
+        variable: "$a"
+        prefix: ""
+        class: "Flower"
 
+####################################
+-
+    php: |-
+        $a = new Plant();
+        $a = new Flower();
+        $a->
+    context:
+        scope: "instance"
+        variable: "$a"
+        prefix: ""
+        class: "Flower"
+
+####################################
+-
+    php: |-
+        use Acme\Flower;
+        $a = new Flower();
+        $a->
+    context:
+        scope: "instance"
+        variable: "$a"
+        prefix: ""
+        class: "Acme\\Flower"
+
+####################################
+-
+    php: |-
+        use Acme\Flower;
+        $a = new Flower();
+        $a->
+        $a = new Plant();
+        $a->
+
+    pos: 46 # end at first $a->
+    context:
+        scope: "instance"
+        variable: "$a"
+        prefix: ""
+        class: "Acme\\Flower"

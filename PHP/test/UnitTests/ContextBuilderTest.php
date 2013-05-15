@@ -57,7 +57,7 @@ EOT;
     {
         $test_specs = yaml_parse_file($GLOBALS['BASE_PATH'].'/test/yaml/context/contexts.yaml');
         foreach($test_specs as $test_spec) {
-            $this->validateContext($test_spec['php'], $test_spec['context']);
+            $this->validateContext($test_spec['php'], $test_spec['context'], isset($test_spec['pos']) ? $test_spec['pos'] : null);
         }
 
     }
@@ -76,9 +76,13 @@ EOT;
         return $lexer->getTokens();
     }
 
-    protected function validateContext($php_code, $expected_context_array) {
+    protected function validateContext($php_code, $expected_context_array, $pos=null) {
         $php_code = '<?php'.PHP_EOL.$php_code;
-        $pos = strlen($php_code);
+
+        // assume at the end
+        if ($pos === null) { $pos = strlen($php_code); }
+
+        // Logger::log("php_code=\n$php_code\npos=$pos");
         $builder = new ContextBuilder();
         $context = $builder->buildContext($php_code, $pos);
 
