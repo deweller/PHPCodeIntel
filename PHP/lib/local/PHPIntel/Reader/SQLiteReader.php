@@ -44,15 +44,16 @@ class SQLiteReader
     {
 
         // build lookup query
-        $sql_text = "SELECT * FROM entity WHERE scope = ? AND class = ?";
-        $query_vars = array($context['scope'], $context['class']);
+        $sql_text = "SELECT * FROM entity WHERE scope = ? AND class = ? AND visibility <= ?";
+        $query_vars = array($context['scope'], $context['class'], SQLite::visibilityTextToNumber($context['visibility']));
 
         // add prefix if it exists
         if (isset($context['prefix']) AND $context['prefix']) {
-            $sql_text .= " AND prefix = ?";
-            $query_vars[] = $context['prefix'];
+            $sql_text .= " AND completion LIKE ?";
+            $query_vars[] = $context['prefix'].'%';
         }
 
+        // Logger::log("sql_text=$sql_text query_vars=".print_r($query_vars, true));
         return $this->buildEntitiesByQuery($sql_text, $query_vars);
     }
 
@@ -66,12 +67,17 @@ class SQLiteReader
         $entities = array();
         if (file_exists($this->sqlite_filepath)) {
             $db = $this->getDBHandle();
+            if (!$db) { throw new Exception("Unable to initialize SQLite DB", 1); }
             $sth = $db->prepare($sql_text);
+            if (!$sth) { throw new Exception("Unable to prepare statement for sql_text $sql_text", 1); }
+
             $sth->execute($query_vars);
             $sth->setFetchMode(\PDO::FETCH_ASSOC);
 
             foreach ($sth as $row) {
-                $entities[] = new Entity($row);
+                $data = $row;
+                $data['visibility'] = SQLite::visibilityNumberToText($row['visibility']);
+                $entities[] = new Entity($data);
             }
         } 
         return $entities;

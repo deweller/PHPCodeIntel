@@ -1,0 +1,20 @@
+####################################
+-
+    context:
+        scope: "static"
+        visibility: "public"
+        class: "BaseClassOne"
+        prefix: "st"
+    completions:
+        - staticOne()
+
+####################################
+-
+    context:
+        scope: "instance"
+        visibility: "public"
+        class: "BaseClassOne"
+        prefix: "m"
+    completions:
+        - methodBaseOne()
+        - methodBaseTwo($var_one)

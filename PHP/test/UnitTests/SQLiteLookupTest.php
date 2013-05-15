@@ -16,27 +16,36 @@ class SQLiteLookupTest extends \PHPUnit_Framework_TestCase
     ////////////////////////////////////////////////////////////////////////
     // tests
 
-    public function testLookup()
+    public function testLookups()
     {
         // setup
         $test_sqlite_filepath = $this->scanTestProject();
 
-        $context = new Context(array(
-          'scope'  => 'static',
-          'class'  => 'BaseClassOne',
-          'prefix' => '',
-        ));
-        $reader = new SQLiteReader($test_sqlite_filepath);
-        $read_entities = $reader->lookupByContext($context);
-        PHPUnit::assertNotEmpty($read_entities);
-        PHPUnit::assertEquals($this->findExpectedProjectEntities($context), $read_entities);
+        $lookup_specs = yaml_parse_file($GLOBALS['BASE_PATH'].'/test/yaml/lookup/lookups.yaml');
+        foreach($lookup_specs as $lookup_spec) {
+            $this->doLookup($test_sqlite_filepath, $lookup_spec['context'], $lookup_spec['completions']);
+        }
 
         // clean up
-        $this->cleanupScanData();
+        $this->cleanupScanData($test_sqlite_filepath);
     }
 
     ////////////////////////////////////////////////////////////////////////
     // util
+
+    public function doLookup($sqlite_filepath, $context_data, $expected_completions)
+    {
+        $context = new Context($context_data);
+        $reader = new SQLiteReader($sqlite_filepath);
+
+        $actual_completions = array();
+        $read_entities = $reader->lookupByContext($context);
+        foreach($read_entities as $read_entity) {
+            $actual_completions[] = $read_entity['completion'];
+        }
+
+        PHPUnit::assertEquals($expected_completions, $actual_completions);
+    }
 
     protected function scanTestProject()
     {

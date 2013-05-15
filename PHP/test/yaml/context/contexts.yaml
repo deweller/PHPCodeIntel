@@ -5,6 +5,7 @@
     php: "Flower::abc"
     context:
         scope: "static"
+        visibility: "public"
         class: "Flower"
         prefix: "abc"
 
@@ -13,6 +14,7 @@
     php: "Flower::"
     context:
         scope: "static"
+        visibility: "public"
         class: "Flower"
         prefix: ""
 
@@ -23,6 +25,7 @@
         $a->abc
     context:
         scope: "instance"
+        visibility: "public"
         variable: "$a"
         prefix: "abc"
         class: "Flower"
@@ -34,6 +37,7 @@
         $a->
     context:
         scope: "instance"
+        visibility: "public"
         variable: "$a"
         prefix: ""
         class: "Flower"
@@ -45,6 +49,7 @@
         $a->
     context:
         scope: "instance"
+        visibility: "public"
         variable: "$a"
         prefix: ""
         class: "Flower"
@@ -57,6 +62,7 @@
         $a->
     context:
         scope: "instance"
+        visibility: "public"
         variable: "$a"
         prefix: ""
         class: "Flower"
@@ -69,6 +75,7 @@
         $a->
     context:
         scope: "instance"
+        visibility: "public"
         variable: "$a"
         prefix: ""
         class: "Acme\\Flower"
@@ -85,6 +92,7 @@
     pos: 46 # end at first $a->
     context:
         scope: "instance"
+        visibility: "public"
         variable: "$a"
         prefix: ""
         class: "Acme\\Flower"

@@ -11,9 +11,29 @@ use \Exception;
 class SQLite
 {
 
+    public static function visibilityTextToNumber($visibility_text) {
+        switch ($visibility_text) {
+            case 'public': return 1;
+            case 'protected': return 2;
+            case 'private': return 3;
+        }
+
+        return null;
+    }
+    public static function visibilityNumberToText($visibility_number) {
+        switch ($visibility_number) {
+            case 1: return 'public';
+            case 2: return 'protected';
+            case 3: return 'private';
+        }
+
+        return null;
+    }
+
     public static function getDBHandle($filepath) {
         $file_exists = file_exists($filepath);
         $db = new PDO("sqlite:{$filepath}");
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
         // create the tables if they don't exist yet
         if (!$file_exists) {
@@ -28,12 +48,13 @@ CREATE TABLE IF NOT EXISTS entity (
     filepath TEXT,
     class TEXT,
     type TEXT,
-    visibility TEXT,
+    visibility INTEGER,
     scope TEXT
 )");
 
 
             $db->exec("CREATE INDEX IF NOT EXISTS entity_completion_idx ON entity (completion)");
+            $db->exec("CREATE INDEX IF NOT EXISTS entity_scope_class_idx ON entity (scope, class)");
         }
 
         return $db;
