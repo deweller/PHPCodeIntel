@@ -5,7 +5,7 @@ namespace PHPIntel\Reader;
 use PHPIntel\SQLite\SQLite;
 use PHPIntel\Context\Context;
 use PHPIntel\Logger\Logger;
-use PHPIntel\Entity\Entity;
+use PHPIntel\Entity\IntelEntity;
 
 use \Exception;
 
@@ -25,6 +25,7 @@ class SQLiteReader
     public function read()
     {
         $sql_text = "SELECT * FROM entity";
+
         return $this->buildEntitiesByQuery($sql_text);
 
         $entities = array();
@@ -33,8 +34,8 @@ class SQLiteReader
             $db = $this->getDBHandle();
             $sql = "SELECT * FROM entity";
             foreach ($db->query($sql, \PDO::FETCH_ASSOC) as $row) {
-                $entities[] = new Entity($row);
-            } 
+                $entities[] = new IntelEntity($row);
+            }
         }
 
         return $entities;
@@ -57,14 +58,46 @@ class SQLiteReader
         return $this->buildEntitiesByQuery($sql_text, $query_vars);
     }
 
+    /**
+     * looks up the parent if any from the inheritance chain
+     * @param string $class_name the qualified name of the class like MyClass or Acme\MyClass
+     * @return mixed the string name of the parent class or null if not found
+     */
+    public function getParentClass($class_name)
+    {
+        // build lookup query
+        $sql_text = "SELECT * FROM inheritance WHERE class = ?";
+        $query_vars = array($class_name);
 
+        $results = $this->executeQuery($sql_text, $query_vars);
+        if ($results) {
+            foreach($results as $row) {
+                return $row['parent'];
+            }
+        }
 
-    protected function getDBHandle() {
+        return null;
+    }
+
+    protected function getDBHandle()
+    {
       return SQLite::getDBHandle($this->sqlite_filepath);
     }
 
-    protected function buildEntitiesByQuery($sql_text, $query_vars=array()) {
+    protected function buildEntitiesByQuery($sql_text, $query_vars=array())
+    {
         $entities = array();
+        $results = $this->executeQuery($sql_text, $query_vars);
+        foreach ($results as $row) {
+            $data = $row;
+            $data['visibility'] = SQLite::visibilityNumberToText($row['visibility']);
+            $entities[] = new IntelEntity($data);
+        }
+
+        return $entities;
+    }
+
+    protected function executeQuery($sql_text, $query_vars=array()) {
         if (file_exists($this->sqlite_filepath)) {
             $db = $this->getDBHandle();
             if (!$db) { throw new Exception("Unable to initialize SQLite DB", 1); }
@@ -74,12 +107,10 @@ class SQLiteReader
             $sth->execute($query_vars);
             $sth->setFetchMode(\PDO::FETCH_ASSOC);
 
-            foreach ($sth as $row) {
-                $data = $row;
-                $data['visibility'] = SQLite::visibilityNumberToText($row['visibility']);
-                $entities[] = new Entity($data);
-            }
-        } 
-        return $entities;
+            return $sth;
+        }
+
+        return array();
     }
+
 }

@@ -33,10 +33,10 @@ class Dispatcher
 
     public static function executeCommand_scanFile($source_file, $sqlite_db_file) {
         $intel = new IntelBuilder();
-        $entities = $intel->extractFromFile($source_file);
+        $entity_collection = $intel->extractFromFile($source_file);
 
         $dumper = new SQLiteDumper($sqlite_db_file);
-        $dumper->replaceEntitiesInFile($entities, $source_file);
+        $dumper->replaceEntitiesInFile($entity_collection, $source_file);
 
         return self::successMessage();
     }

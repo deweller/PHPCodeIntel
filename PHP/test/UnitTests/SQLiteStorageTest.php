@@ -1,8 +1,9 @@
 <?php
 
 use PHPIntel\Dumper\SQLiteDumper;
+use PHPIntel\Entity\EntityCollection;
 use PHPIntel\Reader\SQLiteReader;
-use PHPIntel\Entity\Entity;
+use PHPIntel\Entity\IntelEntity;
 
 use \PHPUnit_Framework_Assert as PHPUnit;
 
@@ -20,7 +21,7 @@ class SQLiteStorageTest extends \PHPUnit_Framework_TestCase
         if (file_exists($test_sqlite_filepath)) { unlink($test_sqlite_filepath); }
 
         $dumper = new SQLiteDumper($test_sqlite_filepath);
-        $dumper->dump($entities);
+        $dumper->dump(new EntityCollection(array('entities' => $entities, 'classes' => array())));
         PHPUnit::assertTrue(file_exists($test_sqlite_filepath), "sqlite file not found");
 
         $reader = new SQLiteReader($test_sqlite_filepath);
@@ -39,7 +40,7 @@ class SQLiteStorageTest extends \PHPUnit_Framework_TestCase
     protected function buildTestEntities()
     {
         return array(
-            new Entity(array(
+            new IntelEntity(array(
                 'label'      => 'function1',
                 'completion' => 'function1($a, $b)',
 
@@ -49,7 +50,7 @@ class SQLiteStorageTest extends \PHPUnit_Framework_TestCase
                 'visibility' => null,
                 'scope'      => null,
             )),
-            new Entity(array(
+            new IntelEntity(array(
                 'label'      => 'function2',
                 'completion' => 'function2($a, $b)',
 

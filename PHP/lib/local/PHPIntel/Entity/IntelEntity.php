@@ -19,7 +19,7 @@ use \Exception;
 *   scope: instance or static
 *
 */
-class Entity extends ArrayObject
+class IntelEntity extends ArrayObject
 {
 
 }

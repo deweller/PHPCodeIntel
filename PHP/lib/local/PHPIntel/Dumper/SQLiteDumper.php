@@ -3,6 +3,8 @@
 namespace PHPIntel\Dumper;
 
 use PHPIntel\SQLite\SQLite;
+use PHPIntel\Logger\Logger;
+use PHPIntel\Entity\EntityCollection;
 
 use \Exception;
 
@@ -20,21 +22,22 @@ class SQLiteDumper implements Dumper
         $this->sqlite_filepath = $sqlite_filepath;
     }
 
-    public function replaceEntitiesInFile(array $entities, $php_source_filepath)
+    public function replaceEntitiesInFile(EntityCollection $entity_collection, $php_source_filepath)
     {
         $_this = $this;
-        $this->executeInDBTransaction(function($db) use ($entities, $php_source_filepath, $_this) {
+        $this->executeInDBTransaction(function($db) use ($entity_collection, $php_source_filepath, $_this) {
             $_this->clearFilepath($db, $php_source_filepath);
+            $_this->dumpIntelEntities($db, $entity_collection['entities']);
 
-            $_this->dumpEntities($db, $entities);
+            $_this->dumpClassEntities($db, $entity_collection['classes']);
         });
     }
 
-    public function dump(array $entities)
+    public function dump(EntityCollection $entity_collection)
     {
         $_this = $this;
-        $this->executeInDBTransaction(function($db) use ($entities, $_this) {
-            $_this->dumpEntities($db, $entities);
+        $this->executeInDBTransaction(function($db) use ($entity_collection, $_this) {
+            $_this->dumpIntelEntities($db, $entity_collection['entities']);
         });
     }
 
@@ -44,13 +47,23 @@ class SQLiteDumper implements Dumper
       $db->prepare('DELETE FROM entity WHERE filepath=?')->execute(array($php_source_filepath));
     }
 
-    public function dumpEntities($db, $entities)
+    public function dumpIntelEntities($db, array $entities)
     {
         $sth = $db->prepare('INSERT INTO entity (label, completion, filepath, class, type, visibility, scope) VALUES (?,?,?,?,?,?,?)');
         foreach($entities as $entity) {
             $sth->execute(array($entity['label'], $entity['completion'], $entity['filepath'], $entity['class'], $entity['type'], SQLite::visibilityTextToNumber($entity['visibility']), $entity['scope']));
         }
     }
+
+    public function dumpClassEntities($db, array $classes) {
+        foreach($classes as $class) {
+            $db->prepare('DELETE FROM inheritance WHERE class=?')->execute(array($class['name']));
+
+            $sth = $db->prepare('INSERT INTO inheritance (class, parent) VALUES (?,?)');
+            $res = $sth->execute(array($class['name'], $class['parent']));
+        }
+    }
+
     protected function executeInDBTransaction($callback) {
         $db = SQLite::getDBHandle($this->sqlite_filepath);
         $db->beginTransaction();

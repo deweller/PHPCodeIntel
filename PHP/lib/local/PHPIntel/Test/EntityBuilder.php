@@ -2,7 +2,7 @@
 
 namespace PHPIntel\Test;
 
-use PHPIntel\Entity\Entity;
+use PHPIntel\Entity\IntelEntity;
 
 use \Exception;
 
@@ -22,7 +22,7 @@ class EntityBuilder
 
         foreach ($entities_data as $entities_entry) {
             $entities_entry['filepath'] = str_replace('==data_path==', $GLOBALS['BASE_PATH'].'/test/data', $entities_entry['filepath']);
-            $test_entities[] = new Entity($entities_entry);
+            $test_entities[] = new IntelEntity($entities_entry);
         }
 
         return $test_entities;

@@ -3,7 +3,8 @@
 namespace PHPIntel\Intel\Visitor;
 
 
-use PHPIntel\Entity\Entity;
+use PHPIntel\Entity\IntelEntity;
+use PHPIntel\Entity\ClassEntity;
 use PHPIntel\Logger\Logger;
 
 /*
@@ -16,8 +17,10 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
     protected $source_file = null;
 
     protected $intel_entities = array();
+    protected $class_entities = array();
+
     protected $pretty_printer = null;
-    protected $current_class_name = null;
+    protected $current_class_entity = null;
 
 
     public function __construct($source_file=null)
@@ -28,6 +31,7 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
     public function enterNode(\PHPParser_Node $node)
     {
         parent::enterNode($node);
+        // $this->debugDumpNode($node);
 
         switch ($node->getType()) {
             // delegate to $this->enterNode_Stmt_ClassMethod($node);
@@ -55,6 +59,9 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
     public function getIntelEntities() {
         return $this->intel_entities;
     }
+    public function getClassEntities() {
+        return $this->class_entities;
+    }
 
 
     protected function enterNode_Stmt_ClassMethod($node) {
@@ -64,11 +71,11 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
 
 
 
-        $this->intel_entities[] = new Entity(array(
+        $this->intel_entities[] = new IntelEntity(array(
             'label'      => $function_name,
             'completion' => "{$function_name}({$params_text})",
             'filepath'   => $this->source_file,
-            'class'      => $this->current_class_name,
+            'class'      => $this->current_class_entity['name'],
             'type'       => 'method',
             'visibility' => $this->visibilityFromNode($node),
             'scope'      => $this->scopeFromMethodNode($node),
@@ -76,11 +83,17 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
     }
 
     protected function enterNode_Stmt_Class($node) {
-        $this->current_class_name = $node->namespacedName;
+        $this->current_class_entity = new ClassEntity(array(
+            'name'   => (string)$node->namespacedName,
+            'parent' => isset($node->extends) ? (string)$node->extends : '',
+        ));
+
+        // Logger::log("class: ".print_r((array)$this->current_class_entity, true));
     } 
 
     protected function leaveNode_Stmt_Class($node) {
-        $this->current_class_name = null;
+        $this->class_entities[] = $this->current_class_entity;
+        $this->current_class_entity = null;
     } 
 
 
@@ -147,6 +160,16 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
             return 'static';
         }
         return 'instance';
+    }
+
+    protected function debugDumpNode($node, $callback=null)
+    {
+        $printer = new \PHPParser_PrettyPrinter_Zend();
+        $msg = $printer->prettyPrint(array($node));
+        if ($callback) {
+            $msg = $callback($msg);
+        }
+        Logger::log(get_class($node)." ".$msg);
     }
 
 }

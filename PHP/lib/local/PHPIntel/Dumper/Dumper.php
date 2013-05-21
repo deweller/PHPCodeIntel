@@ -3,6 +3,7 @@
 namespace PHPIntel\Dumper;
 
 use PHPIntel\SQLite\SQLite;
+use PHPIntel\Entity\EntityCollection;
 
 use \Exception;
 
@@ -14,7 +15,7 @@ interface Dumper
 
     public function __construct($dump_filepath);
 
-    public function replaceEntitiesInFile(array $entities, $php_source_filepath);
-    public function dump(array $entities);
+    public function replaceEntitiesInFile(EntityCollection $entities, $php_source_filepath);
+    public function dump(EntityCollection $entities);
 
 }

@@ -52,9 +52,17 @@ CREATE TABLE IF NOT EXISTS entity (
     scope TEXT
 )");
 
+            $db->exec("
+CREATE TABLE IF NOT EXISTS inheritance (
+    class TEXT,
+    parent TEXT
+)");
+
 
             $db->exec("CREATE INDEX IF NOT EXISTS entity_completion_idx ON entity (completion)");
             $db->exec("CREATE INDEX IF NOT EXISTS entity_scope_class_idx ON entity (scope, class)");
+
+            $db->exec("CREATE INDEX IF NOT EXISTS inheritance_class_idx ON inheritance (class)");
         }
 
         return $db;

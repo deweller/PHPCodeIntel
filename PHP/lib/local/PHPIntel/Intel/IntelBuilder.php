@@ -3,6 +3,7 @@
 namespace PHPIntel\Intel;
 
 use PHPIntel\Intel\Visitor\EntityBuilderVisitor;
+use PHPIntel\Entity\EntityCollection;
 
 
 /*
@@ -19,7 +20,7 @@ class IntelBuilder
     /**
      * extracts entities from a file
      * @param type $file 
-     * @return type
+     * @return array an array of classes in 'classes' and entities in 'entities'
      */
     public function extractFromFile($file)
     {
@@ -40,6 +41,11 @@ class IntelBuilder
             echo 'Parse Error: ', $e->getMessage();
         }
 
-        return $intel_collector->getIntelEntities();
+        // classes
+        return new EntityCollection(array(
+            'classes'  => $intel_collector->getClassEntities(),
+            'entities' => $intel_collector->getIntelEntities(),
+        ));
+
     }
 }

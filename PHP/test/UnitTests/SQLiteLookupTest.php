@@ -1,13 +1,10 @@
 <?php
 
-use PHPIntel\Dumper\SQLiteDumper;
+use PHPIntel\Test\TestProject;
 use PHPIntel\Logger\Logger;
 use PHPIntel\Test\EntityBuilder;
 use PHPIntel\Context\Context;
-use PHPIntel\Scanner\ProjectScanner;
-use PHPIntel\Intel\IntelBuilder;
 use PHPIntel\Reader\SQLiteReader;
-use PHPIntel\Entity\Entity;
 
 use \PHPUnit_Framework_Assert as PHPUnit;
 
@@ -19,7 +16,8 @@ class SQLiteLookupTest extends \PHPUnit_Framework_TestCase
     public function testLookups()
     {
         // setup
-        $test_sqlite_filepath = $this->scanTestProject();
+        $test_sqlite_filepath = TestProject::scan();
+
 
         $lookup_specs = yaml_parse_file($GLOBALS['BASE_PATH'].'/test/yaml/lookup/lookups.yaml');
         foreach($lookup_specs as $lookup_spec) {
@@ -27,7 +25,7 @@ class SQLiteLookupTest extends \PHPUnit_Framework_TestCase
         }
 
         // clean up
-        $this->cleanupScanData($test_sqlite_filepath);
+        TestProject::cleanup($test_sqlite_filepath);
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -47,31 +45,6 @@ class SQLiteLookupTest extends \PHPUnit_Framework_TestCase
         PHPUnit::assertEquals($expected_completions, $actual_completions);
     }
 
-    protected function scanTestProject()
-    {
-        // clear old test file
-        $test_sqlite_filepath = $GLOBALS['BASE_PATH'].'/test/data/sample_project/.test_intel.sqlite3';
-        if (file_exists($test_sqlite_filepath)) { unlink($test_sqlite_filepath); }
-
-        $dumper = new SQLiteDumper($test_sqlite_filepath);
-
-        $intel = new IntelBuilder();
-        $scanner = new ProjectScanner(array(
-            'include_dirs' => array(
-                $GLOBALS['BASE_PATH'].'/test/data/sample_project/lib',
-                $GLOBALS['BASE_PATH'].'/test/data/sample_project/vendor',
-            ),
-        ));
-        $scanner->scanAndDumpProject($intel, $dumper);
-
-        return $test_sqlite_filepath;
-    }
-
-    protected function cleanupScanData()
-    {
-        // clean up
-        if (file_exists($test_sqlite_filepath)) { unlink($test_sqlite_filepath); }
-    }
 
     protected function findExpectedProjectEntities($context) {
         $scope = $context['scope'];
