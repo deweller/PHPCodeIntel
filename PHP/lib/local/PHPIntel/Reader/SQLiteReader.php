@@ -3,6 +3,7 @@
 namespace PHPIntel\Reader;
 
 use PHPIntel\SQLite\SQLite;
+use PHPIntel\Entity\ClassEntity;
 use PHPIntel\Context\Context;
 use PHPIntel\Logger\Logger;
 use PHPIntel\Entity\IntelEntity;
@@ -15,30 +16,12 @@ use \Exception;
 */
 class SQLiteReader
 {
+
     protected $sqlite_filepath = null;
 
     public function __construct($sqlite_filepath)
     {
         $this->sqlite_filepath = $sqlite_filepath;
-    }
-
-    public function read()
-    {
-        $sql_text = "SELECT * FROM entity";
-
-        return $this->buildEntitiesByQuery($sql_text);
-
-        $entities = array();
-        $db = $this->getDBHandle();
-        if (file_exists($this->sqlite_filepath)) {
-            $db = $this->getDBHandle();
-            $sql = "SELECT * FROM entity";
-            foreach ($db->query($sql, \PDO::FETCH_ASSOC) as $row) {
-                $entities[] = new IntelEntity($row);
-            }
-        }
-
-        return $entities;
     }
 
     public function lookupByContext(Context $context)
@@ -60,18 +43,18 @@ class SQLiteReader
 
     /**
      * looks up the parent if any from the inheritance chain
-     * @param string $class_name the qualified name of the class like MyClass or Acme\MyClass
-     * @return mixed the string name of the parent class or null if not found
+     * @param  string $class_name the qualified name of the class like MyClass or Acme\MyClass
+     * @return mixed  the string name of the parent class or null if not found
      */
     public function getParentClass($class_name)
     {
         // build lookup query
-        $sql_text = "SELECT * FROM inheritance WHERE class = ?";
+        $sql_text = "SELECT * FROM inheritance WHERE name = ?";
         $query_vars = array($class_name);
 
         $results = $this->executeQuery($sql_text, $query_vars);
         if ($results) {
-            foreach($results as $row) {
+            foreach ($results as $row) {
                 return $row['parent'];
             }
         }
@@ -79,9 +62,31 @@ class SQLiteReader
         return null;
     }
 
+    public function getAllEntities()
+    {
+        $sql_text = "SELECT * FROM entity";
+
+        return $this->buildEntitiesByQuery($sql_text);
+    }
+
+    public function getAllClasses()
+    {
+        $classes = array();
+
+        $sql_text = "SELECT * FROM inheritance";
+        $results = $this->executeQuery($sql_text);
+        if ($results) {
+            foreach ($results as $row) {
+                $classes[] = new ClassEntity($row);
+            }
+        }
+
+        return $classes;
+    }
+
     protected function getDBHandle()
     {
-      return SQLite::getDBHandle($this->sqlite_filepath);
+        return SQLite::getDBHandle($this->sqlite_filepath);
     }
 
     protected function buildEntitiesByQuery($sql_text, $query_vars=array())
@@ -97,7 +102,8 @@ class SQLiteReader
         return $entities;
     }
 
-    protected function executeQuery($sql_text, $query_vars=array()) {
+    protected function executeQuery($sql_text, $query_vars=array())
+    {
         if (file_exists($this->sqlite_filepath)) {
             $db = $this->getDBHandle();
             if (!$db) { throw new Exception("Unable to initialize SQLite DB", 1); }

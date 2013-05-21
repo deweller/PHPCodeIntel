@@ -3,6 +3,7 @@
 namespace PHPIntel\Test;
 
 use PHPIntel\Entity\IntelEntity;
+use PHPIntel\Entity\ClassEntity;
 
 use \Exception;
 
@@ -26,6 +27,18 @@ class EntityBuilder
         }
 
         return $test_entities;
+    }
+
+    public static function buildTestClassEntities($relative_yaml_path)
+    {
+        $test_classes = array();
+        $class_entities_data = yaml_parse_file($GLOBALS['BASE_PATH'].'/test/yaml/entities/'.$relative_yaml_path);
+
+        foreach ($class_entities_data as $class_entry) {
+            $test_classes[] = new ClassEntity($class_entry);
+        }
+
+        return $test_classes;
     }
 
 }

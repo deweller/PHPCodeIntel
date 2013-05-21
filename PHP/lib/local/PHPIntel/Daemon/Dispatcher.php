@@ -55,7 +55,7 @@ class Dispatcher
         $context = $builder->buildContext($php_content, $current_position);
 
         $reader = new SQLiteReader($sqlite_db_file);
-        $entities = $reader->read();
+        $entities = $reader->getAllEntities();
 
         $formatter = new Formatter();
         $completions = $formatter->formatEntitiesAsCompletions($entities);

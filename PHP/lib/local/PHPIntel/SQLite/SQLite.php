@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS entity (
 
             $db->exec("
 CREATE TABLE IF NOT EXISTS inheritance (
-    class TEXT,
+    name TEXT,
     parent TEXT
 )");
 
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS inheritance (
             $db->exec("CREATE INDEX IF NOT EXISTS entity_completion_idx ON entity (completion)");
             $db->exec("CREATE INDEX IF NOT EXISTS entity_scope_class_idx ON entity (scope, class)");
 
-            $db->exec("CREATE INDEX IF NOT EXISTS inheritance_class_idx ON inheritance (class)");
+            $db->exec("CREATE INDEX IF NOT EXISTS inheritance_name_idx ON inheritance (name)");
         }
 
         return $db;

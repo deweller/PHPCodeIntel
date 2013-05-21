@@ -25,7 +25,7 @@ class SQLiteStorageTest extends \PHPUnit_Framework_TestCase
         PHPUnit::assertTrue(file_exists($test_sqlite_filepath), "sqlite file not found");
 
         $reader = new SQLiteReader($test_sqlite_filepath);
-        $read_entities = $reader->read();
+        $read_entities = $reader->getAllEntities();
 
         // see if what we read is what we expected
         PHPUnit::assertEquals($read_entities, $entities);

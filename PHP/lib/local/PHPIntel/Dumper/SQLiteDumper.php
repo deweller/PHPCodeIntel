@@ -57,9 +57,9 @@ class SQLiteDumper implements Dumper
 
     public function dumpClassEntities($db, array $classes) {
         foreach($classes as $class) {
-            $db->prepare('DELETE FROM inheritance WHERE class=?')->execute(array($class['name']));
+            $db->prepare('DELETE FROM inheritance WHERE name=?')->execute(array($class['name']));
 
-            $sth = $db->prepare('INSERT INTO inheritance (class, parent) VALUES (?,?)');
+            $sth = $db->prepare('INSERT INTO inheritance (name, parent) VALUES (?,?)');
             $res = $sth->execute(array($class['name'], $class['parent']));
         }
     }

@@ -1,0 +1,9 @@
+-
+    name: BaseClassOne
+    parent: ""
+-
+    name: Sub\ChildClassOne
+    parent: BaseClassOne
+-
+    name: Acme\AcmeClassOne
+    parent: ""

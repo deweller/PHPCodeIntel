@@ -1,6 +1,8 @@
 <?php
 
 use PHPIntel\Scanner\ProjectScanner;
+use PHPIntel\Test\EntityUtil;
+use PHPIntel\Logger\Logger;
 use PHPIntel\Test\TestProject;
 use PHPIntel\Test\EntityBuilder;
 use PHPIntel\Intel\IntelBuilder;
@@ -22,12 +24,21 @@ class ScanProjectTest extends \PHPUnit_Framework_TestCase
         
         // read scanned dirs
         $reader = new SQLiteReader($test_sqlite_filepath);
-        $read_entities = $reader->read();
+
+        // check entities
+        $read_entities = $reader->getAllEntities();
         $expected_entities = EntityBuilder::buildTestEntities('project_entities.yaml');
+        PHPUnit::assertEquals(EntityUtil::sortedEntities($expected_entities, 'label', 'class'), EntityUtil::sortedEntities($read_entities, 'label', 'class'));
 
-        PHPUnit::assertEquals($expected_entities, $read_entities);
+        // check classes
+        $read_classes = $reader->getAllClasses();
+        $expected_classes = EntityBuilder::buildTestClassEntities('project_class_entities.yaml');
+        PHPUnit::assertEquals(EntityUtil::sortedEntities($expected_classes, 'name'), EntityUtil::sortedEntities($read_classes, 'name'));
 
+
+        ////////////////////////////////////////////////////////////////////////
         // run again and make sure entities are cleared first and not double-added
+
         $test_sqlite_filepath = $GLOBALS['BASE_PATH'].'/test/data/sample_project/.test_intel.sqlite3';
         $dumper = new SQLiteDumper($test_sqlite_filepath);
         $intel = new IntelBuilder();
@@ -38,8 +49,16 @@ class ScanProjectTest extends \PHPUnit_Framework_TestCase
             ),
         ));
         $scanner->scanAndDumpProject($intel, $dumper);
-        $read_entities = $reader->read();
-        PHPUnit::assertEquals($expected_entities, $read_entities);
+
+        // check entities
+        $read_entities = $reader->getAllEntities();
+        PHPUnit::assertEquals(EntityUtil::sortedEntities($expected_entities, 'label', 'class'), EntityUtil::sortedEntities($read_entities, 'label', 'class'));
+
+        // check classes
+        $read_classes = $reader->getAllClasses();
+        PHPUnit::assertEquals(EntityUtil::sortedEntities($expected_classes, 'name'), EntityUtil::sortedEntities($read_classes, 'name'));
+
+
 
         // clean up
         TestProject::cleanup($test_sqlite_filepath);
