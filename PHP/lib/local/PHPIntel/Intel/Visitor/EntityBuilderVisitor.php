@@ -72,7 +72,7 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
 
 
         $this->intel_entities[] = new IntelEntity(array(
-            'label'      => $function_name,
+            'name'      => $function_name,
             'completion' => "{$function_name}({$params_text})",
             'filepath'   => $this->source_file,
             'class'      => $this->current_class_entity['name'],

@@ -42,7 +42,7 @@ class SQLite
 
             $db->exec("
 CREATE TABLE IF NOT EXISTS entity (
-    label TEXT,
+    name TEXT,
     completion TEXT,
 
     filepath TEXT,

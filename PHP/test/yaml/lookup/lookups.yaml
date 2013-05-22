@@ -18,3 +18,15 @@
     completions:
         - methodBaseOne()
         - methodBaseTwo($var_one)
+
+####################################
+-
+    context:
+        scope: "instance"
+        visibility: "public"
+        class: "Sub\\ChildClassOne"
+        prefix: "m"
+    completions:
+        - methodBaseOne()
+        - methodBaseTwo($var_one)
+        - methodChildOne()

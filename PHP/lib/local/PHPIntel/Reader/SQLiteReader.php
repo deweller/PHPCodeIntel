@@ -26,19 +26,11 @@ class SQLiteReader
 
     public function lookupByContext(Context $context)
     {
+        $parent_entities = $this->buildParentEntitiesByContext($context);
 
-        // build lookup query
-        $sql_text = "SELECT * FROM entity WHERE scope = ? AND class = ? AND visibility <= ?";
-        $query_vars = array($context['scope'], $context['class'], SQLite::visibilityTextToNumber($context['visibility']));
+        $entities = $this->buildEntitiesByContext($context);
 
-        // add prefix if it exists
-        if (isset($context['prefix']) AND $context['prefix']) {
-            $sql_text .= " AND completion LIKE ?";
-            $query_vars[] = $context['prefix'].'%';
-        }
-
-        // Logger::log("sql_text=$sql_text query_vars=".print_r($query_vars, true));
-        return $this->buildEntitiesByQuery($sql_text, $query_vars);
+        return $this->mergeEntities($parent_entities, $entities);
     }
 
     /**
@@ -88,6 +80,55 @@ class SQLiteReader
     {
         return SQLite::getDBHandle($this->sqlite_filepath);
     }
+
+    protected function mergeEntities($parent_entities, $entities)
+    {
+        if (!$parent_entities) { return $entities; }
+
+        $merged_entities = array();
+
+        foreach($parent_entities as $parent_entity) {
+            $merged_entities[$parent_entity['name']] = $parent_entity;
+        }
+
+        foreach($entities as $entity) {
+            $merged_entities[$entity['name']] = $entity;
+        }
+
+        return array_values($merged_entities);
+    }
+
+    protected function buildParentEntitiesByContext(Context $context)
+    {
+        $parent_entities = null;
+        $parent_class = $this->getParentClass($context['class']);
+
+        if ($parent_class) {
+            $parent_context = $context->getParentContext($parent_class);
+            if ($parent_context) {
+                $parent_entities = $this->lookupByContext($parent_context);
+            }
+        }
+
+        return $parent_entities;
+    }
+
+    protected function buildEntitiesByContext(Context $context)
+    {
+        // build lookup query
+        $sql_text = "SELECT * FROM entity WHERE scope = ? AND class = ? AND visibility <= ?";
+        $query_vars = array($context['scope'], $context['class'], SQLite::visibilityTextToNumber($context['visibility']));
+
+        // add prefix if it exists
+        if (isset($context['prefix']) AND $context['prefix']) {
+            $sql_text .= " AND completion LIKE ?";
+            $query_vars[] = $context['prefix'].'%';
+        }
+
+        // Logger::log("sql_text=$sql_text query_vars=".print_r($query_vars, true));
+        return $this->buildEntitiesByQuery($sql_text, $query_vars);
+    }
+
 
     protected function buildEntitiesByQuery($sql_text, $query_vars=array())
     {

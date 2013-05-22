@@ -14,7 +14,7 @@ class Formatter
     public function formatEntitiesAsCompletions($entities) {
         $out = array();
         foreach($entities as $entity) {
-            $out[] = array($entity['label']."\t"."function", $this->escapeForSublime($entity['completion']));
+            $out[] = array($entity['name']."\t"."function", $this->escapeForSublime($entity['completion']));
         }
         return $out;
     }

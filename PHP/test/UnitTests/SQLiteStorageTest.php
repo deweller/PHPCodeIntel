@@ -41,7 +41,7 @@ class SQLiteStorageTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             new IntelEntity(array(
-                'label'      => 'function1',
+                'name'      => 'function1',
                 'completion' => 'function1($a, $b)',
 
                 'filepath'   => null,
@@ -51,7 +51,7 @@ class SQLiteStorageTest extends \PHPUnit_Framework_TestCase
                 'scope'      => null,
             )),
             new IntelEntity(array(
-                'label'      => 'function2',
+                'name'      => 'function2',
                 'completion' => 'function2($a, $b)',
 
                 'filepath'   => null,

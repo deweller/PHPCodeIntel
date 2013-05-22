@@ -28,7 +28,7 @@ class ScanProjectTest extends \PHPUnit_Framework_TestCase
         // check entities
         $read_entities = $reader->getAllEntities();
         $expected_entities = EntityBuilder::buildTestEntities('project_entities.yaml');
-        PHPUnit::assertEquals(EntityUtil::sortedEntities($expected_entities, 'label', 'class'), EntityUtil::sortedEntities($read_entities, 'label', 'class'));
+        PHPUnit::assertEquals(EntityUtil::sortedEntities($expected_entities, 'name', 'class'), EntityUtil::sortedEntities($read_entities, 'name', 'class'));
 
         // check classes
         $read_classes = $reader->getAllClasses();
@@ -52,7 +52,7 @@ class ScanProjectTest extends \PHPUnit_Framework_TestCase
 
         // check entities
         $read_entities = $reader->getAllEntities();
-        PHPUnit::assertEquals(EntityUtil::sortedEntities($expected_entities, 'label', 'class'), EntityUtil::sortedEntities($read_entities, 'label', 'class'));
+        PHPUnit::assertEquals(EntityUtil::sortedEntities($expected_entities, 'name', 'class'), EntityUtil::sortedEntities($read_entities, 'name', 'class'));
 
         // check classes
         $read_classes = $reader->getAllClasses();

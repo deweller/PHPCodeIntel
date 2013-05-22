@@ -1,5 +1,5 @@
 -
-    label: methodBaseOne
+    name: methodBaseOne
     completion: methodBaseOne()
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
     class: BaseClassOne
@@ -8,7 +8,7 @@
     scope: instance
 
 -
-    label: methodBaseTwo
+    name: methodBaseTwo
     completion: methodBaseTwo($var_one)
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
     class: BaseClassOne
@@ -17,7 +17,7 @@
     scope: instance
 
 -
-    label: methodProOne
+    name: methodProOne
     completion: methodProOne()
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
     class: BaseClassOne
@@ -26,7 +26,7 @@
     scope: instance
 
 -
-    label: staticOne
+    name: staticOne
     completion: staticOne()
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
     class: BaseClassOne
@@ -36,7 +36,7 @@
 
     # this should be overwritten
 -
-    label: methodBaseTwo
+    name: methodBaseTwo
     completion: methodBaseTwo($var_one)
     filepath: ==data_path==/sample_project/lib/Sub/ChildClassOne.php
     class: Sub\ChildClassOne
@@ -44,7 +44,7 @@
     visibility: public
     scope: instance
 -
-    label: methodChildOne
+    name: methodChildOne
     completion: "methodChildOne()"
     filepath: ==data_path==/sample_project/lib/Sub/ChildClassOne.php
     class: Sub\ChildClassOne
@@ -53,7 +53,7 @@
     scope: instance
 
 -
-    label: methodAcmeOne
+    name: methodAcmeOne
     completion: methodAcmeOne()
     filepath: ==data_path==/sample_project/vendor/Acme/AcmeClassOne.php
     class: Acme\AcmeClassOne
@@ -61,7 +61,7 @@
     visibility: public
     scope: instance
 -
-    label: methodAcmeTwo
+    name: methodAcmeTwo
     completion: methodAcmeTwo($var_one)
     filepath: ==data_path==/sample_project/vendor/Acme/AcmeClassOne.php
     class: Acme\AcmeClassOne
