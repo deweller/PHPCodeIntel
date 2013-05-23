@@ -27,6 +27,8 @@ class LexerUtil
 
     public static function findTokenOffsetByStringPosition($tokens, $position_map, $str_position)
     {
+        // start at one character back
+        $str_position = $str_position - 1;
 
         for ($offset = count($tokens)-1; $offset >= 0; $offset--) { 
             if ($position_map[$offset] <= $str_position) {

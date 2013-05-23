@@ -3,6 +3,7 @@
 namespace PHPIntel\Context\Parser;
 
 use \PHPParser_Parser;
+use \PHPParser_Error;
 use PHPIntel\Logger\Logger;
 use \Exception;
 
@@ -11,6 +12,9 @@ use \Exception;
 */
 class TolerantParser extends PHPParser_Parser
 {
+
+    // need to try things like adding a missing semicolon...
+    
 
     public function parse($code)
     {
@@ -22,6 +26,8 @@ class TolerantParser extends PHPParser_Parser
 
             // echo "this->yyastk dump:\n";
             // print_r($this->yyastk);
+            // Logger::log("this->yyastk dump: ".print_r($this->yyastk, true));
+
             // got an error, but we will return the statements anyway
             Logger::log($e);
 
@@ -30,5 +36,6 @@ class TolerantParser extends PHPParser_Parser
     }
 
     
+
 
 }

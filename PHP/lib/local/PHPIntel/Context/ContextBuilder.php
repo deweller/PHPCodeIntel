@@ -23,7 +23,8 @@ class ContextBuilder
 
     public function buildContext($full_php_content, $current_position)
     {
-        $php_content = substr($full_php_content, 0, $current_position);
+        $php_content = $this->stripPHPContentAfterPosition($full_php_content, $current_position);
+
         $lexer = new Lexer();
         $parser = new TolerantParser($lexer);
 
@@ -53,7 +54,7 @@ class ContextBuilder
         $token_0 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 2]);
         $token_1 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 1]);
         $token_2 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 0]);
-        // Logger::log("tokens are  0:".token_name($token_0[0])." 1:".token_name($token_1[0])." 2:".token_name($token_2[0])."");
+        Logger::log("tokens are  0)".token_name($token_0[0]).":".$token_0[1]." 1)".token_name($token_1[0]).":".$token_1[1]." 2)".token_name($token_2[0]).":".$token_2[1]."");
 
         $context_data = array();
         switch (true) {
@@ -77,8 +78,8 @@ class ContextBuilder
             // $a->something
             case $token_0[0] == T_VARIABLE AND $token_1[0] == T_OBJECT_OPERATOR AND $token_2[0] = T_STRING:
                 $context_data['scope']      = 'instance';
-                $context_data['visibility'] = 'public';
                 $context_data['variable']   = $token_0[1];
+                $context_data['visibility'] = ($context_data['variable'] == '$this' ? 'private' : 'public');
                 $context_data['prefix']     = $token_2[1];
                 $context_data['class']      = $this->resolveClassForVariable($context_data['variable'], $str_position, $statements);
                 break;
@@ -86,8 +87,8 @@ class ContextBuilder
             // $a->
             case $token_1[0] == T_VARIABLE AND $token_2[0] == T_OBJECT_OPERATOR:
                 $context_data['scope']      = 'instance';
-                $context_data['visibility'] = 'public';
                 $context_data['variable']   = $token_1[1];
+                $context_data['visibility'] = ($context_data['variable'] == '$this' ? 'private' : 'public');
                 $context_data['prefix']     = '';
                 $context_data['class']      = $this->resolveClassForVariable($context_data['variable'], $str_position, $statements);
                 break;
@@ -112,6 +113,38 @@ class ContextBuilder
 
         // get the class name
         return $visitor->getResolvedClassName();
+    }
+
+    // append a semicolon and enough closing braces to balance out the code
+    protected function stripPHPContentAfterPosition($full_php_content, $current_position)
+    {
+        $stripped_php_content = substr($full_php_content, 0, $current_position);
+
+        $tokens = token_get_all($stripped_php_content);
+        // Logger::log("tokens: ".print_r($tokens, true));
+
+        $brace_stack = 0;
+        foreach($tokens as $token) {
+            if (is_string($token)) {
+                if ($token == '{') {
+                    ++$brace_stack;
+                }
+                if ($token == '}') {
+                    --$brace_stack;
+                    if ($brace_stack < 0) { throw new Exception("Unbalanced brace count found.", 1); }
+                }
+            }
+        }
+
+        $closed_php_content = $stripped_php_content.';';
+
+        // add trailing braces
+        for ($i=$brace_stack; $i > 0; $i--) { 
+            $closed_php_content .= '}';
+        }
+
+
+        return $closed_php_content;
     }
 
 }

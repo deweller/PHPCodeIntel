@@ -33,9 +33,11 @@ class VariableClassResolverVisitor extends \PHPParser_NodeVisitor_NameResolver
     public function enterNode(\PHPParser_Node $node)
     {
         parent::enterNode($node);
+        $this->debugDumpNode($node, function($code) use ($node) { return "Entering ".$node->getType().": $code"; });
 
         switch ($node->getType()) {
-            // delegate to $this->enterNode_Stmt_ClassMethod($node);
+            // delegate to $this->enterNode_Stmt_Class($node);
+            case 'Stmt_Class':
             case 'Expr_Assign':
             case 'Name_FullyQualified':
                 $method = "enterNode_".$node->getType();
@@ -50,7 +52,8 @@ class VariableClassResolverVisitor extends \PHPParser_NodeVisitor_NameResolver
         parent::leaveNode($node);
 
         switch ($node->getType()) {
-            // delegate to $this->leaveNode_Stmt_ClassMethod($node);
+            // delegate to $this->leaveNode_Stmt_Class($node);
+            case 'Stmt_Class':
             case 'Expr_Assign':
                 $method = "leaveNode_".$node->getType();
                 call_user_func(array($this, $method), $node);
@@ -60,8 +63,6 @@ class VariableClassResolverVisitor extends \PHPParser_NodeVisitor_NameResolver
 
     protected function enterNode_Expr_Assign($node)
     {
-        // $this->debugDumpNode($node, function($code) use ($node) { return "Entering ".$node->getType().": $code"; });
-
         // see if we are assigning to the variable name that we care about
         if ($node->var->name == $this->variable_name) {
             // watch for a Name_FullyQualified
@@ -71,19 +72,27 @@ class VariableClassResolverVisitor extends \PHPParser_NodeVisitor_NameResolver
 
     protected function enterNode_Name_FullyQualified($node)
     {
-        if ($this->in_assign_stack) {
+        if ($this->in_assign_stack AND $this->variable_name != 'this') {
             $this->resolved_class_name_for_variable = $node->toString();
         }
     }
 
     protected function leaveNode_Expr_Assign($node)
     {
-        --$this->in_assign_stack;
+        if ($this->in_assign_stack) {
+            --$this->in_assign_stack;
+        }
     }
 
     protected function enterNode_Stmt_Class($node)
     {
-        $this->current_class_name = $node->namespacedName;
+        Logger::log("enterNode_Stmt_Class node->namespacedName=$node->namespacedName");
+        $this->current_class_name = (string)$node->namespacedName;
+
+        if ($this->variable_name == 'this')
+        {
+            return $this->resolved_class_name_for_variable = $this->current_class_name;
+        } 
     } 
 
     protected function leaveNode_Stmt_Class($node)

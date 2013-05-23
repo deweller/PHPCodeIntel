@@ -53,9 +53,10 @@ class Dispatcher
     public static function executeCommand_autoComplete($php_content, $current_position, $sqlite_db_file) {
         $builder = new ContextBuilder();
         $context = $builder->buildContext($php_content, $current_position);
+        Logger::log("context: ".print_r((array)$context, true));
 
         $reader = new SQLiteReader($sqlite_db_file);
-        $entities = $reader->getAllEntities();
+        $entities = $reader->lookupByContext($context);
 
         $formatter = new Formatter();
         $completions = $formatter->formatEntitiesAsCompletions($entities);

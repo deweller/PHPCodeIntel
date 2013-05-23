@@ -35,8 +35,29 @@ EOT;
     {
         $php_code = <<<'EOT'
 <?php
+$a=1
+EOT;
+
+        $tokens = $this->getTokens($php_code);
+        $position_map = LexerUtil::buildTokenPositionMap($tokens);
+        Logger::log("position_map=".print_r($position_map, true));
+        $names_by_offset = array_values($names_by_pos = LexerUtil::buildTokenDescriptionsByPosition($tokens, $position_map));
+        Logger::log("names_by_offset=".print_r($names_by_offset, true));
+
+        // $pos = strpos($php_code, '$a->abc') + 7;
+        $pos = strpos($php_code, '=') + 1;
+        $offset = LexerUtil::findTokenOffsetByStringPosition($tokens, $position_map, $pos);
+        Logger::log("offset=$offset");
+
+        $this->assertEquals(array(-1,'='), $names_by_offset[$offset]);
+        $this->assertEquals(array(T_VARIABLE,'$a'), LexerUtil::buildTokenDescriptionArray($tokens[$offset-1]));
+        $this->assertEquals(array(T_OPEN_TAG,'<?php'."\n"), LexerUtil::buildTokenDescriptionArray($tokens[$offset-2]));
+        return;
+
+        $php_code = <<<'EOT'
+<?php
 $a = new Flower();
-$a->abc
+$a->abc;$b;
 EOT;
 
         $tokens = $this->getTokens($php_code);
@@ -57,6 +78,7 @@ EOT;
     {
         $test_specs = yaml_parse_file($GLOBALS['BASE_PATH'].'/test/yaml/context/contexts.yaml');
         foreach($test_specs as $test_spec) {
+            // Logger::log("php:\n".$test_spec['php']);
             $this->validateContext($test_spec['php'], $test_spec['context'], isset($test_spec['pos']) ? $test_spec['pos'] : null);
         }
 
@@ -82,7 +104,7 @@ EOT;
         // assume at the end
         if ($pos === null) { $pos = strlen($php_code); }
 
-        // Logger::log("php_code=\n$php_code\npos=$pos");
+        // Logger::log("php_code=\n$php_code\npos=$pos\nstripped=".substr($php_code, 0, $pos));
         $builder = new ContextBuilder();
         $context = $builder->buildContext($php_code, $pos);
 

@@ -96,3 +96,20 @@
         variable: "$a"
         prefix: ""
         class: "Acme\\Flower"
+
+####################################
+-
+    php: |-
+        class MyClass {
+            public function myMethod() {
+                $this->pre;
+            }
+        }
+
+    pos: 73 # end at $this->pre
+    context:
+        scope: "instance"
+        visibility: "private"
+        variable: "$this"
+        prefix: "pre"
+        class: "MyClass"
