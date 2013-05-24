@@ -3,26 +3,24 @@
 namespace PHPIntel\Context\Visitor;
 
 use PHPIntel\Logger\Logger;
+use PHPIntel\Context\Visitor\CurrentClassResolverVisitor;
 
 /*
 * VariableClassResolverVisitor
 * attempts to resolve the class name of a variable
 */
-class VariableClassResolverVisitor extends \PHPParser_NodeVisitor_NameResolver
+class VariableClassResolverVisitor extends CurrentClassResolverVisitor
 {
+
 
     protected $resolved_class_name_for_variable = null;
 
-    protected $current_class_name = null;
     protected $variable_name = null;
-    protected $current_position = null;
+    protected $in_variable_stack = 0;
 
-    protected $in_assign_stack = 0;
-
-    public function __construct($variable_name_with_dollar, $current_position)
+    public function __construct($variable_name_with_dollar)
     {
         $this->variable_name = substr($variable_name_with_dollar, 1);
-        $this->current_position = $current_position;
     }
 
     public function getResolvedClassName()
@@ -30,14 +28,16 @@ class VariableClassResolverVisitor extends \PHPParser_NodeVisitor_NameResolver
         return $this->resolved_class_name_for_variable;
     }
 
+
     public function enterNode(\PHPParser_Node $node)
     {
         parent::enterNode($node);
-        $this->debugDumpNode($node, function($code) use ($node) { return "Entering ".$node->getType().": $code"; });
+
+        // $this->debugDumpNode($node, function($code) use ($node) { return "Entering ".$node->getType().": $code"; });
 
         switch ($node->getType()) {
             // delegate to $this->enterNode_Stmt_Class($node);
-            case 'Stmt_Class':
+            case 'Param':
             case 'Expr_Assign':
             case 'Name_FullyQualified':
                 $method = "enterNode_".$node->getType();
@@ -53,11 +53,20 @@ class VariableClassResolverVisitor extends \PHPParser_NodeVisitor_NameResolver
 
         switch ($node->getType()) {
             // delegate to $this->leaveNode_Stmt_Class($node);
-            case 'Stmt_Class':
+            case 'Param':
             case 'Expr_Assign':
                 $method = "leaveNode_".$node->getType();
                 call_user_func(array($this, $method), $node);
                 break;
+        }
+    }
+
+    protected function enterNode_Param($node)
+    {
+        // see if we are assigning to the variable name that we care about
+        if ($node->name == $this->variable_name) {
+            // watch for a Name_FullyQualified
+            ++$this->in_variable_stack;
         }
     }
 
@@ -66,53 +75,29 @@ class VariableClassResolverVisitor extends \PHPParser_NodeVisitor_NameResolver
         // see if we are assigning to the variable name that we care about
         if ($node->var->name == $this->variable_name) {
             // watch for a Name_FullyQualified
-            ++$this->in_assign_stack;
+            ++$this->in_variable_stack;
         }
     }
 
     protected function enterNode_Name_FullyQualified($node)
     {
-        if ($this->in_assign_stack AND $this->variable_name != 'this') {
+        if ($this->in_variable_stack) {
             $this->resolved_class_name_for_variable = $node->toString();
+        }
+    }
+
+    protected function leaveNode_Param($node)
+    {
+        if ($this->in_variable_stack) {
+            --$this->in_variable_stack;
         }
     }
 
     protected function leaveNode_Expr_Assign($node)
     {
-        if ($this->in_assign_stack) {
-            --$this->in_assign_stack;
+        if ($this->in_variable_stack) {
+            --$this->in_variable_stack;
         }
     }
-
-    protected function enterNode_Stmt_Class($node)
-    {
-        Logger::log("enterNode_Stmt_Class node->namespacedName=$node->namespacedName");
-        $this->current_class_name = (string)$node->namespacedName;
-
-        if ($this->variable_name == 'this')
-        {
-            return $this->resolved_class_name_for_variable = $this->current_class_name;
-        } 
-    } 
-
-    protected function leaveNode_Stmt_Class($node)
-    {
-        $this->current_class_name = null;
-    } 
-
-
-
-    protected function debugDumpNode($node, $callback=null)
-    {
-        $printer = new \PHPParser_PrettyPrinter_Zend();
-        $msg = $printer->prettyPrint(array($node));
-        if ($callback) {
-            $msg = $callback($msg);
-        }
-        Logger::log($msg);
-    }
-
-
-
 
 }

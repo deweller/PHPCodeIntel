@@ -3,6 +3,7 @@
 namespace PHPIntel\Context;
 
 use PHPIntel\Context\Parser\TolerantParser;
+use PHPIntel\Context\Visitor\CurrentClassResolverVisitor;
 use PHPIntel\Context\Visitor\VariableClassResolverVisitor;
 use PHPIntel\Context\Lexer\LexerUtil;
 use PHPIntel\Context\Lexer\Lexer;
@@ -62,16 +63,16 @@ class ContextBuilder
             // Classname::something
             case $token_0[0] == T_STRING AND $token_1[0] == T_DOUBLE_COLON AND $token_2[0] = T_STRING:
                 $context_data['scope']      = 'static';
-                $context_data['visibility'] = 'public';
                 $context_data['class']      = $token_0[1];
+                $context_data['visibility'] = $this->resolveVisibilityForStaticClass($context_data['class'], $statements);
                 $context_data['prefix']     = $token_2[1];
                 break;
 
             // Classname::
             case $token_1[0] == T_STRING AND $token_2[0] == T_DOUBLE_COLON:
                 $context_data['scope']      = 'static';
-                $context_data['visibility'] = 'public';
                 $context_data['class']      = $token_1[1];
+                $context_data['visibility'] = $this->resolveVisibilityForStaticClass($context_data['class'], $statements);
                 $context_data['prefix']     = '';
                 break;
 
@@ -81,7 +82,7 @@ class ContextBuilder
                 $context_data['variable']   = $token_0[1];
                 $context_data['visibility'] = ($context_data['variable'] == '$this' ? 'private' : 'public');
                 $context_data['prefix']     = $token_2[1];
-                $context_data['class']      = $this->resolveClassForVariable($context_data['variable'], $str_position, $statements);
+                $context_data['class']      = $this->resolveClassForVariable($context_data['variable'], $statements);
                 break;
 
             // $a->
@@ -90,7 +91,7 @@ class ContextBuilder
                 $context_data['variable']   = $token_1[1];
                 $context_data['visibility'] = ($context_data['variable'] == '$this' ? 'private' : 'public');
                 $context_data['prefix']     = '';
-                $context_data['class']      = $this->resolveClassForVariable($context_data['variable'], $str_position, $statements);
+                $context_data['class']      = $this->resolveClassForVariable($context_data['variable'], $statements);
                 break;
             
             default:
@@ -103,17 +104,46 @@ class ContextBuilder
     }
 
 
-    protected function resolveClassForVariable($variable, $current_position, $statements)
+    protected function resolveClassForVariable($variable, $statements)
     {
-        // the collector will visit all the nodes and collect data
-        $visitor = new VariableClassResolverVisitor($variable, $current_position);
+        Logger::log("resolveClassForVariable");
+        if ($variable === '$this') {
+            return $this->getCurrentClassName($statements);
+        }
+
+        // get the class name assigned to this variable
+        $visitor = new VariableClassResolverVisitor($variable);
+        $this->traverseStatements($visitor, $statements);
+        Logger::log("traverseStatements end");
+        return $visitor->getResolvedClassName();
+    }
+
+    protected function resolveVisibilityForStaticClass($class_name, $statements) {
+        // get the current class name
+        $current_class_name = $this->getCurrentClassName($statements);
+
+        if ($current_class_name == $class_name) {
+            return 'private';
+        }
+
+        return 'public';
+    }
+
+    protected function getCurrentClassName($statements) {
+        $visitor = new CurrentClassResolverVisitor($variable);
+        $this->traverseStatements($visitor, $statements);
+
+        return $visitor->getCurrentClassName();
+    }
+
+
+    protected function traverseStatements($visitor, $statements) {
+        // visit all the nodes and collect data
         $traverser = new \PHPParser_NodeTraverser();
         $traverser->addVisitor($visitor);
         $traverser->traverse($statements);
-
-        // get the class name
-        return $visitor->getResolvedClassName();
     }
+
 
     // append a semicolon and enough closing braces to balance out the code
     protected function stripPHPContentAfterPosition($full_php_content, $current_position)
@@ -142,6 +172,8 @@ class ContextBuilder
         for ($i=$brace_stack; $i > 0; $i--) { 
             $closed_php_content .= '}';
         }
+
+        // Logger::log("closed_php_content=\n$closed_php_content");
 
 
         return $closed_php_content;

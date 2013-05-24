@@ -40,14 +40,14 @@ EOT;
 
         $tokens = $this->getTokens($php_code);
         $position_map = LexerUtil::buildTokenPositionMap($tokens);
-        Logger::log("position_map=".print_r($position_map, true));
+        // Logger::log("position_map=".print_r($position_map, true));
         $names_by_offset = array_values($names_by_pos = LexerUtil::buildTokenDescriptionsByPosition($tokens, $position_map));
-        Logger::log("names_by_offset=".print_r($names_by_offset, true));
+        // Logger::log("names_by_offset=".print_r($names_by_offset, true));
 
         // $pos = strpos($php_code, '$a->abc') + 7;
         $pos = strpos($php_code, '=') + 1;
         $offset = LexerUtil::findTokenOffsetByStringPosition($tokens, $position_map, $pos);
-        Logger::log("offset=$offset");
+        // Logger::log("offset=$offset");
 
         $this->assertEquals(array(-1,'='), $names_by_offset[$offset]);
         $this->assertEquals(array(T_VARIABLE,'$a'), LexerUtil::buildTokenDescriptionArray($tokens[$offset-1]));
@@ -78,8 +78,8 @@ EOT;
     {
         $test_specs = yaml_parse_file($GLOBALS['BASE_PATH'].'/test/yaml/context/contexts.yaml');
         foreach($test_specs as $test_spec) {
-            // Logger::log("php:\n".$test_spec['php']);
-            $this->validateContext($test_spec['php'], $test_spec['context'], isset($test_spec['pos']) ? $test_spec['pos'] : null);
+            $php_code = '<?php'.PHP_EOL.$test_spec['php'];
+            $this->validateContext($php_code, $test_spec['context'], $this->resolvePosition($php_code, $test_spec));
         }
 
     }
@@ -98,13 +98,26 @@ EOT;
         return $lexer->getTokens();
     }
 
-    protected function validateContext($php_code, $expected_context_array, $pos=null) {
-        $php_code = '<?php'.PHP_EOL.$php_code;
+    protected function resolvePosition($php_code, $test_spec) {
+        // numeric cursor position
+        if (isset($test_spec['pos'])) {
+            return $test_spec['pos'];
+        }
 
-        // assume at the end
-        if ($pos === null) { $pos = strlen($php_code); }
+        // use a string to determine position
+        if (isset($test_spec['posPrefix'])) {
+            $pos = strpos($php_code, $test_spec['posPrefix']);
+            if ($pos === false) { throw new Exception("position prefix not found: ".$test_spec['posPrefix'], 1); }
+            return $pos + strlen($test_spec['posPrefix']);
+        }
 
-        // Logger::log("php_code=\n$php_code\npos=$pos\nstripped=".substr($php_code, 0, $pos));
+        // default to the end
+        return strlen($php_code);
+    }
+
+    protected function validateContext($php_code, $expected_context_array, $pos) {
+
+        // Logger::log("php_code=\n$php_code\npos=$pos");
         $builder = new ContextBuilder();
         $context = $builder->buildContext($php_code, $pos);
 

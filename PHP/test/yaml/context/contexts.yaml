@@ -89,7 +89,7 @@
         $a = new Plant();
         $a->
 
-    pos: 46 # end at first $a->
+    posPrefix: $a-> # end at first $a->
     context:
         scope: "instance"
         visibility: "public"
@@ -106,10 +106,90 @@
             }
         }
 
-    pos: 73 # end at $this->pre
+    posPrefix: $this->pre
     context:
         scope: "instance"
         visibility: "private"
         variable: "$this"
         prefix: "pre"
         class: "MyClass"
+
+####################################
+-
+    php: |-
+        class NotMyClass { function a() {} }
+        class MyClass {
+            public function myMethod() {
+                $this->pre;
+            }
+        }
+
+    posPrefix: "$this->pre"
+    context:
+        scope: "instance"
+        visibility: "private"
+        variable: "$this"
+        prefix: "pre"
+        class: "MyClass"
+
+####################################
+-
+    php: |-
+        class MyClass {
+            static function a() {
+                MyClass::b
+            }
+        }
+
+    posPrefix: "MyClass::b"
+    context:
+        scope: "static"
+        visibility: "private"
+        prefix: "b"
+        class: "MyClass"
+
+####################################
+-
+    php: |-
+        class NotMyClass { function a() {} }
+        Something::x
+
+    posPrefix: "Something::x"
+    context:
+        scope: "static"
+        visibility: "public"
+        prefix: "x"
+        class: "Something"
+
+####################################
+-
+    php: |-
+        class MyClass {
+            public function myMethod(Flower $a) {
+                $a->pre;
+            }
+        }
+    posPrefix: "$a->pre"
+    context:
+        scope: "instance"
+        visibility: "public"
+        variable: "$a"
+        prefix: "pre"
+        class: "Flower"
+
+####################################
+-
+    php: |-
+        class MyClass {
+            public function myMethod(Flower $a) {
+                testCall($a);
+                $a->pre;
+            }
+        }
+    posPrefix: "$a->pre"
+    context:
+        scope: "instance"
+        visibility: "public"
+        variable: "$a"
+        prefix: "pre"
+        class: "Flower"
