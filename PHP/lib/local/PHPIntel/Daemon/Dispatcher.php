@@ -64,6 +64,15 @@ class Dispatcher
         return self::successMessage($completions);
     }
 
+    public static function executeCommand_debugSleep($time) {
+        Logger::log("sleeping for $time");
+        sleep($time);
+        Logger::log("done sleeping for $time");
+
+
+        return self::successMessage();
+    }
+
 
     public static function successMessage($msg='ok') {
         $out = array('success' => true);

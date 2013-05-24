@@ -4,6 +4,7 @@ import sys
 import os
 import re
 import subprocess
+import thread
 import socket
 import json
 import time
@@ -76,11 +77,14 @@ class PhpCodeIntelBase:
 
     # sends a remote command to the php daemon
     #  and returns the result
-    def runRemoteCommandInPHPDaemon(self, command, args):
+    def runRemoteCommandInPHPDaemon(self, command, args, aSync=False):
         payload = {}
         payload['cmd'] = command
         payload['args'] = args
-        json_string = self.sendMessageToPHPDaemon(json.dumps(payload))
+        json_string = self.sendMessageToPHPDaemon(json.dumps(payload), aSync)
+        if aSync:
+            return
+
         if json_string == None or json_string == '':
             self.debugMsg("self.runRemoteCommandInPHPDaemon response: None")
             return
@@ -88,9 +92,12 @@ class PhpCodeIntelBase:
         self.debugMsg("self.runRemoteCommandInPHPDaemon response: "+json.dumps(response['msg']))
         return response['msg']
 
+    def runAsyncRemoteCommandInPHPDaemon(self, command, args):
+        self.runRemoteCommandInPHPDaemon(command, args, True)
+
 
     # connects to the socket, sends the message and returns the result
-    def sendMessageToPHPDaemon(self, message):
+    def sendMessageToPHPDaemon(self, message, aSync=False):
         sock = None
         try:
             sock = self.connectToSocket()
@@ -116,6 +123,24 @@ class PhpCodeIntelBase:
         netstring = str(len(message))+":"+message+","
         sent = sock.send(netstring)
 
+        if aSync:
+            thread.start_new_thread(self.processAsyncResponse, (sock,))
+            return
+
+        data = self.readDataFromSocket(sock)
+        return data
+
+    def processAsyncResponse(self, sock):
+        json_string = self.readDataFromSocket(sock)
+        if json_string == None or json_string == '':
+            self.warnMsg("self.runRemoteCommandInPHPDaemon response (async): None")
+            return
+        response = json.loads(json_string)
+        # print "response read: "+json.dumps(response['msg'])
+
+        # do something with response['msg']
+
+    def readDataFromSocket(self, sock):
         data = ''
         while True:
             chunk = sock.recv(1024)
@@ -186,7 +211,7 @@ class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextComman
         include_dirs.append(project_root)
 
         db_file = project_root + '/.php_intel.sqlite3'
-        self.runRemoteCommandInPHPDaemon('scanProject', [include_dirs, db_file])
+        self.runAsyncRemoteCommandInPHPDaemon('scanProject', [include_dirs, db_file])
 
 
 # tells the daemon to stop
@@ -195,6 +220,13 @@ class PhpCodeIntelShutdownDaemonCommand(PhpCodeIntelBase, sublime_plugin.TextCom
     def run(self, edit):
         self.loadSettings(self.view)
         self.runRemoteCommandInPHPDaemon('quit', [])
+
+# does a 3 second sleep in the daemon.  This is used to test async commands.
+class PhpCodeIntelDebugSleepCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
+
+    def run(self, edit):
+        self.loadSettings(self.view)
+        self.runAsyncRemoteCommandInPHPDaemon('debugSleep', [3])
 
 ##############################################################################################################################
 # Autocomplete
