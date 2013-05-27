@@ -1,6 +1,7 @@
 *.pyc
 var/log/*
 .php_intel_data
+*.sqlite3
 *.sublime-project
 *.sublime-workspace
 .tags*

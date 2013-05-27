@@ -10,6 +10,8 @@
     // allow autocompletions
     "autocomplete_enabled": true,
 
+    // rescan a file every time it is saved
+    "rescan_on_save": true,
 
 
     // show debug messages to the console

@@ -55,7 +55,7 @@ class ContextBuilder
         $token_0 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 2]);
         $token_1 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 1]);
         $token_2 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 0]);
-        Logger::log("tokens are  0)".token_name($token_0[0]).":".$token_0[1]." 1)".token_name($token_1[0]).":".$token_1[1]." 2)".token_name($token_2[0]).":".$token_2[1]."");
+        // Logger::log("tokens are  0)".token_name($token_0[0]).":".$token_0[1]." 1)".token_name($token_1[0]).":".$token_1[1]." 2)".token_name($token_2[0]).":".$token_2[1]."");
 
         $context_data = array();
         switch (true) {
@@ -106,7 +106,6 @@ class ContextBuilder
 
     protected function resolveClassForVariable($variable, $statements)
     {
-        Logger::log("resolveClassForVariable");
         if ($variable === '$this') {
             return $this->getCurrentClassName($statements);
         }
@@ -114,7 +113,6 @@ class ContextBuilder
         // get the class name assigned to this variable
         $visitor = new VariableClassResolverVisitor($variable);
         $this->traverseStatements($visitor, $statements);
-        Logger::log("traverseStatements end");
         return $visitor->getResolvedClassName();
     }
 

@@ -178,6 +178,12 @@ class PhpCodeIntelBase:
         self.debugMsg("starting proc " + ' '.join(args))
         proc = subprocess.Popen(args, stdout=subprocess.PIPE, startupinfo=startupinfo, env=proc_env, cwd=self.bin_path)
 
+    def rescanFile(self, view, src_file):
+        src_file = view.file_name()
+        if src_file == None:
+            return
+        db_file = self.getProjectRoot(view, src_file) + '/.php_intel.sqlite3'
+        self.runRemoteCommandInPHPDaemon('scanFile', [src_file, db_file])
 
 
 
@@ -190,11 +196,7 @@ class PhpCodeIntelScanFileCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
 
     def run(self, edit):
         self.loadSettings(self.view)
-        src_file = self.view.file_name()
-        if src_file == None:
-            return
-        db_file = self.getProjectRoot(self.view, src_file) + '/.php_intel.sqlite3'
-        self.runRemoteCommandInPHPDaemon('scanFile', [src_file, db_file])
+        self.rescanFile(self.view, self.view.file_name())
 
 # scans a project
 class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
@@ -248,12 +250,21 @@ class PhpCodeIntelAutoComplete(PhpCodeIntelBase, sublime_plugin.EventListener):
             pos = sel.end()
 
             completions_array = self.runRemoteCommandInPHPDaemon('autoComplete', [content, pos, php_intel_file])
+            if completions_array == None:
+                self.debugMsg("completions_array was None");
+                return
 
             # convert completions array into tuples for python
             completions = []
             for item in completions_array:
                 completions.append((item[0], item[1]))
             return completions
+
+    def on_post_save(self, view):
+        self.loadSettings(view)
+        if self.getSetting('rescan_on_save', True) == True:
+            self.rescanFile(view, view.file_name())
+
 
     def getContent(self, view):
         content = view.substr(sublime.Region(0, view.size()))
