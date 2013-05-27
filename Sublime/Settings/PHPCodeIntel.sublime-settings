@@ -13,6 +13,9 @@
     // rescan a file every time it is saved
     "rescan_on_save": true,
 
+    // filetypes to rescan on save
+    "php_extensions": [".php"],
+
 
     // show debug messages to the console
     "debug_enabled": true

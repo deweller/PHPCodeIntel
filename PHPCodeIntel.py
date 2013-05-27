@@ -263,7 +263,9 @@ class PhpCodeIntelAutoComplete(PhpCodeIntelBase, sublime_plugin.EventListener):
     def on_post_save(self, view):
         self.loadSettings(view)
         if self.getSetting('rescan_on_save', True) == True:
-            self.rescanFile(view, view.file_name())
+            extension_types = tuple(self.getSetting('php_extensions', (".php")))
+            if extension_types and view.file_name().endswith(extension_types):
+                self.rescanFile(view, view.file_name())
 
 
     def getContent(self, view):
