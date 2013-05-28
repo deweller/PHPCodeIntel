@@ -209,11 +209,15 @@ class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextComman
             return
         project_root = self.getProjectRoot(self.view, src_file)
 
-        include_dirs = []
-        include_dirs.append(project_root)
+        scan_dirs = []
+        scan_dirs.append(project_root)
+
+        include_dirs = self.getSetting('include_dirs', [])
+        scan_dirs.extend(include_dirs)
+
 
         db_file = project_root + '/.php_intel.sqlite3'
-        self.runAsyncRemoteCommandInPHPDaemon('scanProject', [include_dirs, db_file])
+        self.runAsyncRemoteCommandInPHPDaemon('scanProject', [scan_dirs, db_file])
 
 
 # tells the daemon to stop
