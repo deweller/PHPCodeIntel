@@ -1,8 +1,9 @@
 <?php
 
-namespace PHPIntel\Scanner\Iterator;
+namespace PHPIntel\Project\Scanner\Iterator;
 
 use \FilterIterator;
+use PHPIntel\Project\Project;
 use PHPIntel\Logger\Logger;
 use \Exception;
 
@@ -11,13 +12,13 @@ use \Exception;
 */
 class ProjectIterator extends FilterIterator
 {
-    public function __construct($settings)
+    public function __construct(Project $project)
     {
-        $this->settings = $settings;
+        $this->project = $project;
 
         $append_iterator = new \AppendIterator();
-        foreach ($settings['include_dirs'] as $include_dir) {
-            $directory_iterator = new \RecursiveDirectoryIterator($include_dir, \FilesystemIterator::SKIP_DOTS);
+        foreach ($project['scan_dirs'] as $scan_dir) {
+            $directory_iterator = new \RecursiveDirectoryIterator($scan_dir, \FilesystemIterator::SKIP_DOTS);
             $outer_iterator = new \RecursiveIteratorIterator($directory_iterator);
             $append_iterator->append($outer_iterator);
         }

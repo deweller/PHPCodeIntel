@@ -1,10 +1,11 @@
 <?php
 
-namespace PHPIntel\Scanner;
+namespace PHPIntel\Project\Scanner;
 
 use PHPIntel\Dumper\Dumper;
+use PHPIntel\Project\Project;
 use PHPIntel\Intel\IntelBuilder;
-use PHPIntel\Scanner\Iterator\ProjectIterator;
+use PHPIntel\Project\Scanner\Iterator\ProjectIterator;
 use PHPIntel\Logger\Logger;
 
 use \Exception;
@@ -14,18 +15,18 @@ use \Exception;
 */
 class ProjectScanner
 {
-    protected $settings = null;
+    protected $project = null;
 
-    public function __construct($settings=null)
+    public function __construct(Project $project)
     {
-        if ($settings !== null) { $this->settings = $settings; }
+        $this->project = $project;
     }
 
     public function scanAndDumpProject(IntelBuilder $intel, Dumper $dumper)
     {
-        if (!isset($this->settings['include_dirs'])) { throw new Exception("Directories to scan not found.", 1); }
+        if (!isset($this->project['scan_dirs'])) { throw new Exception("Directories to scan not found.", 1); }
 
-        $project_iterator = new ProjectIterator($this->settings);
+        $project_iterator = new ProjectIterator($this->project);
         foreach($project_iterator as $path) {
             // for every file in the poject extract the intel and add it to the data store
             $entity_collection = $intel->extractFromFile($path);

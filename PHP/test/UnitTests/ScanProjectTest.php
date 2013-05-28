@@ -1,6 +1,7 @@
 <?php
 
-use PHPIntel\Scanner\ProjectScanner;
+use PHPIntel\Project\Project;
+use PHPIntel\Project\Scanner\ProjectScanner;
 use PHPIntel\Test\EntityUtil;
 use PHPIntel\Logger\Logger;
 use PHPIntel\Test\TestProject;
@@ -42,12 +43,12 @@ class ScanProjectTest extends \PHPUnit_Framework_TestCase
         $test_sqlite_filepath = $GLOBALS['BASE_PATH'].'/test/data/sample_project/.test_intel.sqlite3';
         $dumper = new SQLiteDumper($test_sqlite_filepath);
         $intel = new IntelBuilder();
-        $scanner = new ProjectScanner(array(
-            'include_dirs' => array(
+        $scanner = new ProjectScanner(new Project(array(
+            'scan_dirs' => array(
                 $GLOBALS['BASE_PATH'].'/test/data/sample_project/lib',
                 $GLOBALS['BASE_PATH'].'/test/data/sample_project/vendor',
             ),
-        ));
+        )));
         $scanner->scanAndDumpProject($intel, $dumper);
 
         // check entities

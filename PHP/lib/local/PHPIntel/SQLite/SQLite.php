@@ -40,6 +40,9 @@ class SQLite
             
             $db->exec("PRAGMA synchronous = NORMAL"); // we value speed over crash-proof data
 
+            ////////////////////////////////////////////////////////////////////////
+            // entity
+
             $db->exec("
 CREATE TABLE IF NOT EXISTS entity (
     name TEXT,
@@ -51,18 +54,33 @@ CREATE TABLE IF NOT EXISTS entity (
     visibility INTEGER,
     scope TEXT
 )");
+            $db->exec("CREATE INDEX IF NOT EXISTS entity_completion_idx ON entity (completion)");
+            $db->exec("CREATE INDEX IF NOT EXISTS entity_scope_class_idx ON entity (scope, class)");
+
+
+            ////////////////////////////////////////////////////////////////////////
+            // inheritance
 
             $db->exec("
 CREATE TABLE IF NOT EXISTS inheritance (
     name TEXT,
     parent TEXT
 )");
-
-
-            $db->exec("CREATE INDEX IF NOT EXISTS entity_completion_idx ON entity (completion)");
-            $db->exec("CREATE INDEX IF NOT EXISTS entity_scope_class_idx ON entity (scope, class)");
-
             $db->exec("CREATE INDEX IF NOT EXISTS inheritance_name_idx ON inheritance (name)");
+
+
+            ////////////////////////////////////////////////////////////////////////
+            // project
+
+            $db->exec("
+CREATE TABLE IF NOT EXISTS project (
+    filepath TEXT,
+    last_scan INTEGER
+)");
+            $db->exec("CREATE UNIQUE INDEX IF NOT EXISTS project_filepath_idx ON project (filepath)");
+
+
+
         }
 
         return $db;
