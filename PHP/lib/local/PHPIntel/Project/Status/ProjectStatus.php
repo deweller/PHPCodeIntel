@@ -15,6 +15,8 @@ class ProjectStatus
 
     protected $project = null;
 
+    protected $rescan_delay = 86400; // rescan once a day
+
     public function __construct(Project $project)
     {
         $this->project = $project;
@@ -35,6 +37,21 @@ class ProjectStatus
             return $row['last_scan'];
         }
         return null;
+    }
+
+    public function shouldRescanProject()
+    {
+        $last_scan_time = $status->getLastScanTime();
+
+        if ($last_scan_time <= 0) {
+            return true;
+        }
+
+        if ((time() - $last_scan_time) > $this->rescan_delay) {
+            return true;
+        }
+
+        return false;
     }
 
 

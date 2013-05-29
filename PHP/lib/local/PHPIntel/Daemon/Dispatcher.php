@@ -33,12 +33,26 @@ class Dispatcher
     }
 
 
-    public static function executeCommand_scanFile($source_file, $sqlite_db_file) {
-        $intel = new IntelBuilder();
-        $entity_collection = $intel->extractFromFile($source_file);
+    public static function executeCommand_scanFile($source_file, $scan_dirs, $sqlite_db_file) {
+        $project = new Project(array('scan_dirs' => $scan_dirs, 'db_file' => $sqlite_db_file));
 
+        $intel = new IntelBuilder();
         $dumper = new SQLiteDumper($sqlite_db_file);
-        $dumper->replaceEntitiesInFile($entity_collection, $source_file);
+
+        // if the project has never been scanned or has not been re-scanned for a while
+        //   then scan it now
+        $status = new ProjectStatus($project);
+        if ($status->shouldRescanProject()) {
+            // rescan the entire project
+            $scanner = new ProjectScanner($project);
+            $scanner->scanAndDumpProject($intel, $dumper);
+            $status->updateLastScanTime();
+
+        } else {
+            // just update this file
+            $entity_collection = $intel->extractFromFile($source_file);
+            $dumper->replaceEntitiesInFile($entity_collection, $source_file);
+        }
 
         return self::successMessage();
     }
@@ -76,7 +90,6 @@ class Dispatcher
         Logger::log("sleeping for $time");
         sleep($time);
         Logger::log("done sleeping for $time");
-
 
         return self::successMessage();
     }

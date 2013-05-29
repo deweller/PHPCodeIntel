@@ -75,6 +75,28 @@ class PhpCodeIntelBase:
         return False
 
 
+    def getProjectScanDirs(self, view):
+        src_file = view.file_name()
+        if src_file == None:
+            return
+
+        project_root = self.getProjectRoot(view, src_file)
+
+        scan_dirs = []
+        scan_dirs.append(project_root)
+
+        include_dirs = self.getSetting('include_dirs', [])
+        scan_dirs.extend(include_dirs)
+
+        return scan_dirs
+
+    def getDBFile(self, view):
+        src_file = view.file_name()
+        if src_file == None:
+            return
+        project_root = self.getProjectRoot(view, src_file)
+        return project_root + '/.php_intel.sqlite3'
+
     # sends a remote command to the php daemon
     #  and returns the result
     def runRemoteCommandInPHPDaemon(self, command, args, aSync=False):
@@ -179,11 +201,12 @@ class PhpCodeIntelBase:
         proc = subprocess.Popen(args, stdout=subprocess.PIPE, startupinfo=startupinfo, env=proc_env, cwd=self.bin_path)
 
     def rescanFile(self, view, src_file):
-        src_file = view.file_name()
-        if src_file == None:
-            return
-        db_file = self.getProjectRoot(view, src_file) + '/.php_intel.sqlite3'
-        self.runRemoteCommandInPHPDaemon('scanFile', [src_file, db_file])
+        scan_dirs = self.getProjectScanDirs(view)
+        db_file = self.getDBFile(view)
+
+        # scan as async command - we don't care about the results
+        sublime.status_message("PHPCI: scan file")
+        self.runAsyncRemoteCommandInPHPDaemon('scanFile', [src_file, scan_dirs, db_file])
 
 
 
@@ -203,20 +226,9 @@ class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextComman
 
     def run(self, edit):
         self.loadSettings(self.view)
-
-        src_file = self.view.file_name()
-        if src_file == None:
-            return
-        project_root = self.getProjectRoot(self.view, src_file)
-
-        scan_dirs = []
-        scan_dirs.append(project_root)
-
-        include_dirs = self.getSetting('include_dirs', [])
-        scan_dirs.extend(include_dirs)
-
-
-        db_file = project_root + '/.php_intel.sqlite3'
+        scan_dirs = self.getProjectScanDirs(self.view)
+        db_file = self.getDBFile(self.view)
+        sublime.status_message("PHPCI: scanning project")
         self.runAsyncRemoteCommandInPHPDaemon('scanProject', [scan_dirs, db_file])
 
 

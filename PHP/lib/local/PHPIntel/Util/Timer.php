@@ -16,8 +16,6 @@ class Timer
       'second' => 1000
     );
 
-    private $startTimes = array();
-
     public function __construct()
     {
         $this->start_time = microtime(true);
