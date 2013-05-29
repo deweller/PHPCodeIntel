@@ -3,6 +3,7 @@
 namespace PHPIntel\Daemon;
 
 use PHPIntel\Logger\Logger;
+use PHPIntel\Util\Timer;
 
 use \Exception;
 
@@ -46,6 +47,7 @@ class Daemon
         $conn->on('data', function ($data) use ($loop, $conn, &$net_string) {
           $net_string .= $data;
           if ($message_text = NetString::parse(trim($net_string))) {
+            $t = new Timer();
 
             $cmd_array = json_decode($message_text, true);
             // Logger::log("cmd_array: ".print_r($cmd_array, true));
@@ -69,6 +71,7 @@ class Daemon
                 $conn->write(json_encode(array('success' => false, 'msg' => 'could not parse command')));
             }
 
+            Logger::log("Completed cmd ".$cmd_array['cmd'].".  ".$t->resourceUsage());
             $conn->end();
           }
         });
