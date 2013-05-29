@@ -3,6 +3,7 @@
 namespace PHPIntel\Context;
 
 use PHPIntel\Context\Parser\TolerantParser;
+use PHPIntel\Context\Visitor\SimpleClassNameResolverVisitor;
 use PHPIntel\Context\Visitor\CurrentClassResolverVisitor;
 use PHPIntel\Context\Visitor\VariableClassResolverVisitor;
 use PHPIntel\Context\Lexer\LexerUtil;
@@ -63,7 +64,7 @@ class ContextBuilder
             // Classname::something
             case $token_0[0] == T_STRING AND $token_1[0] == T_DOUBLE_COLON AND $token_2[0] = T_STRING:
                 $context_data['scope']      = 'static';
-                $context_data['class']      = $token_0[1];
+                $context_data['class']      = $this->resolveStaticClassName($token_0[1], $statements);
                 $context_data['visibility'] = $this->resolveVisibilityForStaticClass($context_data['class'], $statements);
                 $context_data['prefix']     = $token_2[1];
                 break;
@@ -71,7 +72,7 @@ class ContextBuilder
             // Classname::
             case $token_1[0] == T_STRING AND $token_2[0] == T_DOUBLE_COLON:
                 $context_data['scope']      = 'static';
-                $context_data['class']      = $token_1[1];
+                $context_data['class']      = $this->resolveStaticClassName($token_1[1], $statements);
                 $context_data['visibility'] = $this->resolveVisibilityForStaticClass($context_data['class'], $statements);
                 $context_data['prefix']     = '';
                 break;
@@ -114,6 +115,24 @@ class ContextBuilder
         $visitor = new VariableClassResolverVisitor($variable);
         $this->traverseStatements($visitor, $statements);
         return $visitor->getResolvedClassName();
+    }
+
+    protected function resolveStaticClassName($simple_class_name, $statements) {
+        if ($simple_class_name == 'self') {
+            // resolve self to the current class
+            // unimplemented
+        }
+
+        // get the fully resolved class name for $simple_class_name
+        $visitor = new SimpleClassNameResolverVisitor($simple_class_name);
+        $this->traverseStatements($visitor, $statements);
+        $resolved_class_name = $visitor->getResolvedClassName();
+        if ($resolved_class_name) {
+            return $resolved_class_name;
+        }
+
+        // could not resolve
+        return $simple_class_name;
     }
 
     protected function resolveVisibilityForStaticClass($class_name, $statements) {
@@ -162,6 +181,13 @@ class ContextBuilder
                     if ($brace_stack < 0) { throw new Exception("Unbalanced brace count found.", 1); }
                 }
             }
+        }
+
+        // if it ends in a -> or ::, then add a trailing character
+        $ending_chars = substr($stripped_php_content, -2);
+        if ($ending_chars == '->' OR $ending_chars == '::') {
+            $magic_prefix = 'x';
+            $stripped_php_content .= $magic_prefix;
         }
 
         $closed_php_content = $stripped_php_content.';';

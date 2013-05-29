@@ -21,6 +21,41 @@
 ####################################
 -
     php: |-
+        use Outdoor\Flower;
+        Flower::
+    context:
+        scope: "static"
+        visibility: "public"
+        class: "Outdoor\\Flower"
+        prefix: ""
+
+####################################
+-
+    php: |-
+        use Outdoor\Flower;
+        Flower::abc
+    context:
+        scope: "static"
+        visibility: "public"
+        class: "Outdoor\\Flower"
+        prefix: "abc"
+
+####################################
+-
+    php: |-
+        use Outdoor\Flower;
+        $a = new Flower();
+        $a->abc
+    context:
+        scope: "instance"
+        visibility: "public"
+        variable: "$a"
+        prefix: "abc"
+        class: "Outdoor\\Flower"
+
+####################################
+-
+    php: |-
         $a = new Flower();
         $a->abc
     context:
