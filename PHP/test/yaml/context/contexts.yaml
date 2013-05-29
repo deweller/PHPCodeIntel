@@ -228,3 +228,36 @@
         variable: "$a"
         prefix: "pre"
         class: "Flower"
+
+####################################
+-
+    php: |-
+        namespace Outdoor;
+        class Flower {
+            function a() {
+                self::abc
+            }
+        }
+    posPrefix: "self::abc"
+    context:
+        scope: "static"
+        visibility: "private"
+        prefix: "abc"
+        class: "Outdoor\\Flower"
+
+####################################
+-
+    php: |-
+        namespace Outdoor;
+        class Flower {
+            function a() {
+                self::
+            }
+        }
+    posPrefix: "self::"
+    context:
+        scope: "static"
+        visibility: "private"
+        prefix: ""
+        class: "Outdoor\\Flower"
+

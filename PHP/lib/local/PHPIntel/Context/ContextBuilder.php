@@ -120,7 +120,7 @@ class ContextBuilder
     protected function resolveStaticClassName($simple_class_name, $statements) {
         if ($simple_class_name == 'self') {
             // resolve self to the current class
-            // unimplemented
+            return $this->getCurrentClassName($statements);
         }
 
         // get the fully resolved class name for $simple_class_name
@@ -147,7 +147,7 @@ class ContextBuilder
     }
 
     protected function getCurrentClassName($statements) {
-        $visitor = new CurrentClassResolverVisitor($variable);
+        $visitor = new CurrentClassResolverVisitor();
         $this->traverseStatements($visitor, $statements);
 
         return $visitor->getCurrentClassName();
