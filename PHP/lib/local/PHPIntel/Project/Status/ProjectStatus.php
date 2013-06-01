@@ -41,7 +41,7 @@ class ProjectStatus
 
     public function shouldRescanProject()
     {
-        $last_scan_time = $status->getLastScanTime();
+        $last_scan_time = $this->getLastScanTime();
 
         if ($last_scan_time <= 0) {
             return true;

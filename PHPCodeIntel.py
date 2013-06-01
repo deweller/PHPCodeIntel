@@ -5,10 +5,13 @@ import os
 import re
 import subprocess
 import thread
+import threading
 import socket
 import json
 import time
 
+import threadq
+import preferences
 
 st_version = 2
 if sublime.version() == '' or int(sublime.version()) > 3000:
@@ -16,39 +19,40 @@ if sublime.version() == '' or int(sublime.version()) > 3000:
 
 
 ##############################################################################################################################
-# base plugun
+# prefs
+##############################################################################################################################
+
+prefs = None
+
+if st_version == 2:
+    prefs = preferences.init()
+
+def plugin_loaded():
+    prefs = preferences.init()
+
+
+##############################################################################################################################
+# debug
+##############################################################################################################################
+
+def debugMsg(msg):
+    if prefs.debug_enabled == True:
+      print("[PHPCodeIntel] " + str(msg))
+
+def warnMsg(self, msg):
+    print("[PHPCodeIntel] WARN: " + str(msg))
+
+
+##############################################################################################################################
+# base plugin
 ##############################################################################################################################
 
 class PhpCodeIntelBase:
 
-    def loadSettings(self, view):
-        self.settings = sublime.load_settings("PHPCodeIntel.sublime-settings")
-        self.project_settings = view.settings().get('PHPCodeIntel', {})
-
-        self.bin_path = sublime.packages_path() + '/PHPCodeIntel/PHP/bin'
-        # self.debugMsg("self.settings="+json.dumps(self.settings))
-
-    def getSetting(self, name, default):
-        value = self.project_settings.get(name)
-        if value == None:
-            value = self.settings.get(name)
-        if value == None:
-            value = default
-        return value
-
-    # output debugging info to the console
-    def debugMsg(self, msg):
-      if self.getSetting('debug_enabled', False) == True:
-        print("[PHPCodeIntel] " + str(msg))
-
-    def warnMsg(self, msg):
-        print("[PHPCodeIntel] WARN: " + str(msg))
-
     # find the top level folder in sublime
     def getProjectRoot(self, view, filename):
-        project_root = self.getSetting('project_root', None)
-        if project_root != None:
-            return project_root
+        if prefs.project_root != None:
+            return prefs.project_root
 
         folders = view.window().folders()
         path = os.path.dirname(filename)
@@ -84,9 +88,7 @@ class PhpCodeIntelBase:
 
         scan_dirs = []
         scan_dirs.append(project_root)
-
-        include_dirs = self.getSetting('include_dirs', [])
-        scan_dirs.extend(include_dirs)
+        scan_dirs.extend(prefs.include_dirs)
 
         return scan_dirs
 
@@ -108,10 +110,10 @@ class PhpCodeIntelBase:
             return
 
         if json_string == None or json_string == '':
-            self.debugMsg("self.runRemoteCommandInPHPDaemon response: None")
+            debugMsg("self.runRemoteCommandInPHPDaemon response: None")
             return
         response = json.loads(json_string)
-        self.debugMsg("self.runRemoteCommandInPHPDaemon response: "+json.dumps(response['msg']))
+        debugMsg("self.runRemoteCommandInPHPDaemon response: "+json.dumps(response['msg']))
         return response['msg']
 
     def runAsyncRemoteCommandInPHPDaemon(self, command, args):
@@ -124,10 +126,10 @@ class PhpCodeIntelBase:
         try:
             sock = self.connectToSocket()
         except socket.error as e:
-            self.debugMsg("e.errno="+str(e.errno))
+            debugMsg("e.errno="+str(e.errno))
             if e.errno == 61:
                 # connection refused - try restarting daemon
-                self.debugMsg("starting daemon")
+                debugMsg("starting daemon")
                 self.startPHPDaemon()
 
                 # wait 250ms for daemon to start
@@ -136,10 +138,10 @@ class PhpCodeIntelBase:
                 # connect again
                 sock = self.connectToSocket()
         except Exception as e:
-            self.debugMsg("error starting PHP daemon: %s" % e)
+            debugMsg("error starting PHP daemon: %s" % e)
 
         if not sock:
-            self.warnMsg("unable to connect to socket on port "+str(self.getSetting('daemon_port', 20001)))
+            warnMsg("unable to connect to socket on port "+str(prefs.daemon_port))
             return
 
         netstring = str(len(message))+":"+message+","
@@ -155,7 +157,7 @@ class PhpCodeIntelBase:
     def processAsyncResponse(self, sock):
         json_string = self.readDataFromSocket(sock)
         if json_string == None or json_string == '':
-            self.warnMsg("self.runRemoteCommandInPHPDaemon response (async): None")
+            warnMsg("self.runRemoteCommandInPHPDaemon response (async): None")
             return
         response = json.loads(json_string)
         # print "response read: "+json.dumps(response['msg'])
@@ -177,18 +179,18 @@ class PhpCodeIntelBase:
     def connectToSocket(self):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(5)
-        sock.connect(('127.0.0.1', int(self.getSetting('daemon_port', 20001))))
+        sock.connect(('127.0.0.1', int(prefs.daemon_port)))
         return sock
 
 
     # starts the PHP daemon that processes commands
     def startPHPDaemon(self):
-        self.debugMsg("startPHPDaemon")
+        debugMsg("startPHPDaemon")
 
         args = []
-        args.append(self.getSetting('php_path','/usr/bin/php'))
+        args.append(prefs.php_path)
         args.append("daemon.php")
-        args.append(str(self.getSetting('daemon_port', 20001)))
+        args.append(str(prefs.daemon_port))
 
         # Hide the console window on Windows
         startupinfo = None
@@ -197,8 +199,9 @@ class PhpCodeIntelBase:
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
         proc_env = os.environ.copy()
-        self.debugMsg("starting proc " + ' '.join(args))
-        proc = subprocess.Popen(args, stdout=subprocess.PIPE, startupinfo=startupinfo, env=proc_env, cwd=self.bin_path)
+        debugMsg("starting proc " + ' '.join(args))
+        bin_path = sublime.packages_path() + '/PHPCodeIntel/PHP/bin'
+        proc = subprocess.Popen(args, stdout=subprocess.PIPE, startupinfo=startupinfo, env=proc_env, cwd=bin_path)
 
     def rescanFile(self, view, src_file):
         scan_dirs = self.getProjectScanDirs(view)
@@ -218,14 +221,12 @@ class PhpCodeIntelBase:
 class PhpCodeIntelScanFileCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
 
     def run(self, edit):
-        self.loadSettings(self.view)
         self.rescanFile(self.view, self.view.file_name())
 
 # scans a project
 class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
 
     def run(self, edit):
-        self.loadSettings(self.view)
         scan_dirs = self.getProjectScanDirs(self.view)
         db_file = self.getDBFile(self.view)
         sublime.status_message("PHPCI: scanning project")
@@ -236,53 +237,124 @@ class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextComman
 class PhpCodeIntelShutdownDaemonCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
 
     def run(self, edit):
-        self.loadSettings(self.view)
         self.runRemoteCommandInPHPDaemon('quit', [])
 
 # does a 3 second sleep in the daemon.  This is used to test async commands.
 class PhpCodeIntelDebugSleepCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
 
     def run(self, edit):
-        self.loadSettings(self.view)
         self.runAsyncRemoteCommandInPHPDaemon('debugSleep', [3])
+
+# view.run_command('pci_test_autocomplete')
+class PciTestAutocomplete(PhpCodeIntelBase, sublime_plugin.TextCommand):
+    def run(self, edit):
+        view = self.view
+        view.run_command('auto_complete', {
+            'disable_auto_insert': True,
+            'api_completions_only': True,
+            'next_completion_if_showing': False,
+        })
+
+# view.run_command('pci_test_queue')
+class PciTestQueueCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
+    def run(self, edit):
+        def myCallback(view, test_val):
+            debugMsg("myCallback was called "+str(test_val))
+
+        debugMsg("running")
+        threadq.add(self.view, myCallback, ["Hi world"])
 
 ##############################################################################################################################
 # Autocomplete
 ##############################################################################################################################
 
+completionsCache = {}
+
 class PhpCodeIntelAutoComplete(PhpCodeIntelBase, sublime_plugin.EventListener):
 
+    def run(self, edit, block=False):
+        view = self.view
+        path = view.file_name()
+        debugMsg("PhpCodeIntelAutoComplete.run")
+
+
     def on_query_completions(self, view, prefix, locations):
+        # don't do anything if not in a PHP source code file
         if view.score_selector(locations[0], "source.php") == 0:
             return []
 
-        self.loadSettings(view)
-        if self.getSetting('autocomplete_enabled', False) == True:
-            src_file = view.file_name()
-            php_intel_file = self.getProjectRoot(view, src_file) + '/.php_intel.sqlite3'
+        if prefs.autocomplete_enabled == False:
+            return []
 
-            content = view.substr(sublime.Region(0, view.size()))
-            sel = view.sel()[0]
-            pos = sel.end()
+        id = view.id()
+        if id in completionsCache:
+            _completions = completionsCache[id]
+            del completionsCache[id]
+            return _completions
 
-            completions_array = self.runRemoteCommandInPHPDaemon('autoComplete', [content, pos, php_intel_file])
-            if completions_array == None:
-                self.debugMsg("completions_array was None");
+        return []
+
+
+    def on_modified(self, view):
+        if view.settings().get('syntax') != 'Packages/PHP/PHP.tmLanguage':
+            return
+
+        self.queueBackgroundAutocompletions(view)
+        # self.triggerAutocomplete(view)
+
+
+    def queueBackgroundAutocompletions(self, view):
+        threadq.add(view, self.populateAutocompletionsCache)
+        threadq.trigger()
+
+    def triggerAutocomplete(self, view):
+        view.run_command('auto_complete', {
+            'disable_auto_insert': True,
+            'api_completions_only': True,
+            'next_completion_if_showing': False,
+        })
+
+
+    def populateAutocompletionsCache(self, view):
+        global completionsCache
+
+        for thread in threading.enumerate():
+            if thread.isAlive() and thread.name == "populate autocompletions thread":
+                debugMsg("autocompletions already running...")
                 return
 
-            # convert completions array into tuples for python
-            completions = []
-            for item in completions_array:
-                completions.append((item[0], item[1]))
-            return completions
+        id = view.id()
+        # threading.thread(target=self.buildAutocompletions, name="build autocompletions", args=[view]).start()
+        def _do_populate_completions(content, pos, php_intel_file):
+            completionsCache[id] = self.buildAutocompletions(view, content, pos, php_intel_file)
 
-    def on_post_save(self, view):
-        self.loadSettings(view)
-        if self.getSetting('rescan_on_save', True) == True:
-            extension_types = tuple(self.getSetting('php_extensions', (".php")))
-            if extension_types and view.file_name().endswith(extension_types):
-                self.rescanFile(view, view.file_name())
+        php_intel_file = self.getProjectRoot(view, view.file_name()) + '/.php_intel.sqlite3'
+        content = view.substr(sublime.Region(0, view.size()))
+        sel = view.sel()[0]
+        pos = sel.end()
 
+        threading.Thread(target=_do_populate_completions, name="populate autocompletions thread", args=[content, pos, php_intel_file]).start()
+
+        return
+
+
+
+    def buildAutocompletions(self, view, content, pos, php_intel_file):
+        # # DEBUG
+        # time.sleep(1.5)
+        # return [('testcompletion1\tsample','test1'),('testcompletion2\tsample','test2')]
+        # # DEBUG
+
+        completions_array = self.runRemoteCommandInPHPDaemon('autoComplete', [content, pos, php_intel_file])
+        if completions_array == None:
+            debugMsg("completions_array was None");
+            return
+
+        # convert completions array into tuples for python
+        completions = []
+        for item in completions_array:
+            completions.append((item[0], item[1]))
+        return completions
 
     def getContent(self, view):
         content = view.substr(sublime.Region(0, view.size()))
@@ -291,3 +363,19 @@ class PhpCodeIntelAutoComplete(PhpCodeIntelBase, sublime_plugin.EventListener):
         return 
 
 
+    ############################################
+    # rescan file on save
+
+    def on_post_save(self, view):
+        if prefs.rescan_on_save == True:
+            extension_types = prefs.php_extensions
+            for extension in prefs.php_extensions:
+                if view.file_name().endswith(extension):
+                    self.rescanFile(view, view.file_name())
+
+
+
+
+
+
+debugMsg("Plugin loaded")

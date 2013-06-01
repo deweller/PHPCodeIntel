@@ -77,11 +77,15 @@ class Dispatcher
         $context = $builder->buildContext($php_content, $current_position);
         // Logger::log("context: ".print_r((array)$context, true));
 
-        $reader = new SQLiteReader($sqlite_db_file);
-        $entities = $reader->lookupByContext($context);
+        if ($context) {
+            $reader = new SQLiteReader($sqlite_db_file);
+            $entities = $reader->lookupByContext($context);
 
-        $formatter = new Formatter();
-        $completions = $formatter->formatEntitiesAsCompletions($entities);
+            $formatter = new Formatter();
+            $completions = $formatter->formatEntitiesAsCompletions($entities);
+        } else {
+            $completions = array();
+        }
 
         return self::successMessage($completions);
     }
@@ -102,3 +106,7 @@ class Dispatcher
     }
 
 }
+
+
+
+
