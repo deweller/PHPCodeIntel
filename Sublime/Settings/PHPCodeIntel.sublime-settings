@@ -16,6 +16,9 @@
     // filetypes to rescan on save
     "php_extensions": [".php"],
 
+    // include all folders in project
+    "scan_all_project_folders": true,
+
 
     // show debug messages to the console
     "debug_enabled": true
@@ -24,16 +27,13 @@
 
 
     // project-level settings can overwrite any of these settings
-    // add this to your project settings
+    // add this to your project settings (Project -> Edit Project)
+
     // "settings": {
     //     "PHPCodeIntel": {
-    //         "autocomplete_enabled": false,
-    //         "project_root": "/Users/dweller/Library/Application Support/Sublime Text 2/Packages/PHPCodeIntel/PHP",
-    //         "include_dirs": ["/my/path/to/lib/vendor"]
+    //         "scan_all_project_folders": false,
+    //         "include_dirs": ["/my/path/to/lib/src/","/my/path/to/lib/vendor"]
     //     }
     // } 
-
-    // project level settings
-    // "project_root": "/path/to/my/project" 
 
 }
