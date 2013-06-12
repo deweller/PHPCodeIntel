@@ -68,3 +68,11 @@
     type: method
     visibility: public
     scope: instance
+-
+    name: methodAbstractAcmeOne
+    completion: methodAbstractAcmeOne()
+    filepath: ==data_path==/sample_project/vendor/Acme/AcmeAbstractClassOne.php
+    class: Acme\AcmeAbstractClassOne
+    type: method
+    visibility: public
+    scope: instance

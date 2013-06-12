@@ -28,10 +28,14 @@ class ProjectScanner
 
         $project_iterator = new ProjectIterator($this->project);
         foreach($project_iterator as $path) {
+            Logger::log("Begin scanning file: $path");
+
             // for every file in the poject extract the intel and add it to the data store
             $entity_collection = $intel->extractFromFile($path);
 
             $dumper->replaceEntitiesInFile($entity_collection, $path);
+
+            Logger::log("End scanning file: ".basename($path));
         }
 
     }

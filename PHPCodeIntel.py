@@ -42,7 +42,7 @@ class PhpCodeIntelBase:
 
         # scan as async command - we don't care about the results
         sublime.status_message("PHPCI: scan file")
-        phpdaemon.runAsyncRemoteCommandInPHPDaemon(prefs, 'scanFile', [src_file, scan_dirs, db_file])
+        phpdaemon.runAsyncRemoteCommandInPHPDaemon(prefs, 'scanFile', [src_file, scan_dirs, prefs.exclude_patterns, db_file])
 
 
 
@@ -65,7 +65,7 @@ class PhpCodeIntelScanProjectCommand(PhpCodeIntelBase, sublime_plugin.TextComman
         scan_dirs = prefs.getProjectScanDirs(self.view)
         db_file = prefs.getDBFilePath(self.view)
         sublime.status_message("PHPCI: scanning project")
-        phpdaemon.runAsyncRemoteCommandInPHPDaemon(prefs, 'scanProject', [scan_dirs, db_file])
+        phpdaemon.runAsyncRemoteCommandInPHPDaemon(prefs, 'scanProject', [scan_dirs, prefs.exclude_patterns, db_file])
 
 
 # tells the daemon to stop

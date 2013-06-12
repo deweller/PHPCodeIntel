@@ -6,4 +6,7 @@
     parent: BaseClassOne
 -
     name: Acme\AcmeClassOne
+    parent: Acme\AcmeAbstractClassOne
+-
+    name: Acme\AcmeAbstractClassOne
     parent: ""

@@ -33,9 +33,13 @@ class Dispatcher
     }
 
 
-    public static function executeCommand_scanFile($source_file, $scan_dirs, $sqlite_db_file) {
+    public static function executeCommand_scanFile($source_file, $scan_dirs, $exclude_patterns, $sqlite_db_file) {
         // Logger::log("scan_dirs:".print_r($scan_dirs, true));
-        $project = new Project(array('scan_dirs' => $scan_dirs, 'db_file' => $sqlite_db_file));
+        $project = new Project(array(
+            'scan_dirs'        => $scan_dirs,
+            'exclude_patterns' => $exclude_patterns,
+            'db_file'          => $sqlite_db_file
+        ));
 
         $intel = new IntelBuilder();
         $dumper = new SQLiteDumper($sqlite_db_file);
@@ -58,9 +62,13 @@ class Dispatcher
         return self::successMessage();
     }
 
-    public static function executeCommand_scanProject($scan_dirs, $sqlite_db_file) {
+    public static function executeCommand_scanProject($scan_dirs, $exclude_patterns, $sqlite_db_file) {
         Logger::log("scan_dirs: ".print_r($scan_dirs, true));
-        $project = new Project(array('scan_dirs' => $scan_dirs, 'db_file' => $sqlite_db_file));
+        $project = new Project(array(
+            'scan_dirs'        => $scan_dirs,
+            'exclude_patterns' => $exclude_patterns,
+            'db_file'          => $sqlite_db_file
+        ));
 
         $dumper = new SQLiteDumper($sqlite_db_file);
         $intel = new IntelBuilder();

@@ -32,7 +32,9 @@
     // "settings": {
     //     "PHPCodeIntel": {
     //         "scan_all_project_folders": false,
-    //         "include_dirs": ["/my/path/to/lib/src/","/my/path/to/lib/vendor"]
+    //         "include_dirs": ["/my/path/to/lib/src/","/my/path/to/lib/vendor"],
+    //         // exclude_dirs is an array of regex matches
+    //         "exclude_patterns": ["^/my/path/to/lib/vendor.*"]
     //     }
     // } 
 

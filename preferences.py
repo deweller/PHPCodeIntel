@@ -20,6 +20,7 @@ class PCIPrefs:
         ("debug_enabled", False),
         ("scan_all_project_folders", True),
         ("include_dirs", []),
+        ("exclude_patterns", []),
     )
 
     def load(self, view):
