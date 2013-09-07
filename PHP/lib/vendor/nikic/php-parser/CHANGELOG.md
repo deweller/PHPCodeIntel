@@ -1,15 +1,47 @@
-Version 0.9.4-dev
+Version 0.9.5-dev
 -----------------
 
 Nothing yet.
+
+Version 0.9.4 (25.08.2013)
+--------------------------
+* [PHP 5.5] Add support for `ClassName::class`. This is parsed as an `Expr_ClassConstFetch` with `'class'` being the
+  constant name.
+
+* Syntax errors now include information on expected tokens and mimic the format of PHP's own (pre 5.4) error messages.
+  Example:
+
+        Old: Unexpected token T_STATIC on line 1
+        New: Syntax error, unexpected T_STATIC, expecting T_STRING or T_NS_SEPARATOR or '{'
+
+* `PHPParser_PrettyPrinter_Zend` was renamed to `PHPParser_PrettyPrinter_Default` as the default pretty printer only
+  very loosely applies the Zend Coding Standard. The class `PHPParser_PrettyPrinter_Zend` extends
+  `PHPParser_PrettyPrinter_Default` to maintain backwards compatibility.
+
+* The pretty printer now prints namespaces in semicolon-style if possible (i.e. if the file does not contain a global
+  namespace declaration).
+
+* Added `prettyPrintFile(array $stmts)` method which will pretty print a file of statements including the opening
+  `<?php` tag if it is required. Use of this method will also eliminate the unnecessary `<?php ?>` at the start and end
+  of files using inline HTML.
+
+* There now is a builder for interfaces (`PHPParser_Builder_Interface`).
+
+* An interface for the node traversation has been added: `PHPParser_NodeTraverserInterface`
+
+* Fix pretty printing of `include` expressions (precedence information was missing).
+
+* Fix "undefined index" notices when generating the expected tokens for a syntax error.
+
+* Improve performance of `PrettyPrinter` construction by no longer using the `uniqid()` function.
 
 Version 0.9.3 (22.11.2012)
 --------------------------
 
 * [BC] As `list()` in `foreach` is now supported the structure of list assignments changed:
 
-  1. There is no longer a dedicated `AssignList` node; instead a normal `Assign` node is used with a `List` as  `var`.
-  2. Nested lists are now `List` nodes too, instead of just arrays.
+   1. There is no longer a dedicated `AssignList` node; instead a normal `Assign` node is used with a `List` as  `var`.
+   2. Nested lists are now `List` nodes too, instead of just arrays.
 
 * [BC] As arbitrary expressions are allowed in `empty()` now its subnode was renamed from `var` to `expr`.
 

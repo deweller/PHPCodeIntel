@@ -35,25 +35,24 @@ class LibEvLoop implements LoopInterface
 
     public function removeReadStream($stream)
     {
-        $this->readEvents[(int)$stream]->stop();
-        unset($this->readEvents[(int)$stream]);
+        if (isset($this->readEvents[(int)$stream])) {
+            $this->readEvents[(int)$stream]->stop();
+            unset($this->readEvents[(int)$stream]);
+        }
     }
 
     public function removeWriteStream($stream)
     {
-        $this->writeEvents[(int)$stream]->stop();
-        unset($this->writeEvents[(int)$stream]);
+        if (isset($this->writeEvents[(int)$stream])) {
+            $this->writeEvents[(int)$stream]->stop();
+            unset($this->writeEvents[(int)$stream]);
+        }
     }
 
     public function removeStream($stream)
     {
-        if (isset($this->readEvents[(int)$stream])) {
-            $this->removeReadStream($stream);
-        }
-
-        if (isset($this->writeEvents[(int)$stream])) {
-            $this->removeWriteStream($stream);
-        }
+        $this->removeReadStream($stream);
+        $this->removeWriteStream($stream);
     }
 
     private function addStream($stream, $listener, $flags)
@@ -78,12 +77,6 @@ class LibEvLoop implements LoopInterface
         }
 
         return function ($event) use ($stream, $listener, $removeCallback) {
-            if (feof($stream)) {
-                call_user_func($removeCallback, $stream);
-
-                return;
-            }
-
             call_user_func($listener, $stream);
         };
     }

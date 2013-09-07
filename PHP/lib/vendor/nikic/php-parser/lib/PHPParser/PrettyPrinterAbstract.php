@@ -60,23 +60,27 @@ abstract class PHPParser_PrettyPrinterAbstract
         'Expr_LogicalAnd'       => array(16, -1),
         'Expr_LogicalXor'       => array(17, -1),
         'Expr_LogicalOr'        => array(18, -1),
+        'Expr_Include'          => array(19, -1),
     );
 
     protected $noIndentToken;
+    protected $canUseSemicolonNamespaces;
 
     public function __construct() {
-        $this->noIndentToken   = uniqid('_NO_INDENT_');
+        $this->noIndentToken = '_NO_INDENT_' . mt_rand();
     }
 
     /**
-     * Pretty prints an array of nodes (statements).
+     * Pretty prints an array of statements.
      *
-     * @param PHPParser_Node[] $nodes Array of nodes
+     * @param PHPParser_Node[] $stmts Array of statements
      *
-     * @return string Pretty printed nodes
+     * @return string Pretty printed statements
      */
-    public function prettyPrint(array $nodes) {
-        return str_replace("\n" . $this->noIndentToken, "\n", $this->pStmts($nodes, false));
+    public function prettyPrint(array $stmts) {
+        $this->preprocessNodes($stmts);
+
+        return str_replace("\n" . $this->noIndentToken, "\n", $this->pStmts($stmts, false));
     }
 
     /**
@@ -88,6 +92,41 @@ abstract class PHPParser_PrettyPrinterAbstract
      */
     public function prettyPrintExpr(PHPParser_Node_Expr $node) {
         return str_replace("\n" . $this->noIndentToken, "\n", $this->p($node));
+    }
+
+    /**
+     * Pretty prints a file of statements (includes the opening <?php tag if it is required).
+     *
+     * @param PHPParser_Node[] $stmts Array of statements
+     *
+     * @return string Pretty printed statements
+     */
+    public function prettyPrintFile(array $stmts) {
+        $p = trim($this->prettyPrint($stmts));
+
+        $p = preg_replace('/^\?>\n?/', '', $p, -1, $count);
+        $p = preg_replace('/<\?php$/', '', $p);
+
+        if (!$count) {
+            $p = "<?php\n\n" . $p;
+        }
+
+        return $p;
+    }
+
+    /**
+     * Preprocesses the top-level nodes to initialize pretty printer state.
+     *
+     * @param PHPParser_Node[] $nodes Array of nodes
+     */
+    protected function preprocessNodes(array $nodes) {
+        /* We can use semicolon-namespaces unless there is a global namespace declaration */
+        $this->canUseSemicolonNamespaces = true;
+        foreach ($nodes as $node) {
+            if ($node instanceof PHPParser_Node_Stmt_Namespace && null === $node->name) {
+                $this->canUseSemicolonNamespaces = false;
+            }
+        }
     }
 
     /**
@@ -201,7 +240,7 @@ abstract class PHPParser_PrettyPrinterAbstract
     }
 
     /**
-     * Signifies the pretty printer that a string shall not be indented.
+     * Signals the pretty printer that a string shall not be indented.
      *
      * @param string $string Not to be indented string
      *
