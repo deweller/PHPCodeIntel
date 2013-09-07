@@ -26,6 +26,9 @@ class Logger
      */
     public static function init($default_level) {
         self::$LOGGER = new Monolog('phpci');
+        if (!is_dir($GLOBALS['BASE_PATH'].'/var/log/')) {
+            mkdir($GLOBALS['BASE_PATH'].'/var/log/', 0777, true);
+        }
         $handler = new StreamHandler($GLOBALS['BASE_PATH'].'/var/log/debug.log', $default_level);
         $handler->setFormatter(new LineFormatter("[%datetime%] %level_name%: %message%\n"));
         self::$LOGGER->pushHandler($handler);

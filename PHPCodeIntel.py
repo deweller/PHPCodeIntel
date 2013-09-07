@@ -6,15 +6,10 @@ from os.path import join, exists
 import re
 import threading
 import time
+from pprint import pprint
 
-import threadq
-import preferences
-import phpdaemon
-
-st_version = 2
-if sublime.version() == '' or int(sublime.version()) > 3000:
-    st_version = 3
-
+import PHPCodeIntel.preferences as preferences
+import PHPCodeIntel.phpdaemon as phpdaemon
 
 
 ##############################################################################################################################
@@ -42,7 +37,7 @@ class PhpCodeIntelBase:
 
         # scan as async command - we don't care about the results
         sublime.status_message("PHPCI: scan file")
-        phpdaemon.runAsyncRemoteCommandInPHPDaemon(prefs, 'scanFile', [src_file, scan_dirs, prefs.exclude_patterns, db_file])
+        phpdaemon.runRemoteCommandInPHPDaemon(prefs, 'scanFile', [src_file, scan_dirs, prefs.exclude_patterns, db_file])
 
 
 
@@ -85,146 +80,103 @@ class PhpCodeIntelDebugSleepCommand(PhpCodeIntelBase, sublime_plugin.TextCommand
         phpdaemon.runAsyncRemoteCommandInPHPDaemon(prefs, 'debugSleep', [3])
 
 
-# view.run_command('pci_test_autocomplete')
-class PciTestAutocomplete(PhpCodeIntelBase, sublime_plugin.TextCommand):
-    def run(self, edit):
-        prefs = preferences.load(self.view)
-        view = self.view
-        view.run_command('auto_complete', {
-            'disable_auto_insert': True,
-            'api_completions_only': True,
-            'next_completion_if_showing': False,
-        })
-
 # view.run_command('pci_test')
 class PciTestCommand(PhpCodeIntelBase, sublime_plugin.TextCommand):
     def run(self, edit):
         prefs = preferences.load(self.view)
         # project = get_project(self.view)
         # debugMsg(prefs, 'poject is '+str(project))
-        db_file_path = prefs.getDBFilePath(self.view)
-        debugMsg(prefs, 'getDBFilePath = '+str(db_file_path))
+        # db_file_path = prefs.getDBFilePath(self.view)
+        # debugMsg(prefs, 'getDBFilePath = '+str(db_file_path))
         # folders = self.view.window().folders()
         # debugMsg(prefs, 'folders: '+str(folders))
+        # self.get_expanded_region()
+
 
 
 ##############################################################################################################################
-# Autocomplete
+# Quick Panel Completions
 ##############################################################################################################################
 
-completionsCache = {}
+class PhpCodeIntelShowCompletions(PhpCodeIntelBase, sublime_plugin.TextCommand):
+    def run(self, edit):
+        prefs = preferences.load(self.view)
+        items = self.loadCompletions(prefs)
+        if len(items) == 0:
+            sublime.status_message("PHPCI: No completions found.")
+            return
 
-class PhpCodeIntelAutoComplete(PhpCodeIntelBase, sublime_plugin.EventListener):
+        def response_fn(chosen_offset):
+            if chosen_offset < 0:
+                return
+            chosen_completion = items[chosen_offset][1]
+            self.view.run_command('php_code_intel_insert_completion', {'completion': chosen_completion})
 
-    def on_query_completions(self, view, prefix, locations):
-        prefs = preferences.load(view)
-        debugMsg(prefs, "on_query_completions triggered");
+        self.view.window().show_quick_panel(items, response_fn)
 
-        # don't do anything if not in a PHP source code file
+    def loadCompletions(self, prefs):
+        completions = []
+
+        view = self.view
         sel = view.sel()[0]
         pos = sel.end()
 
-        # debugMsg(prefs, "scope_name="+str(view.scope_name(pos)))
-        if view.score_selector(locations[0], "source.php") == 0:
+        if view.score_selector(pos, "source.php") == 0:
             debugMsg(prefs, "not in a source.php scope")
+            sublime.status_message("PHPCI: not in PHP scope")
             return []
-
-        if prefs.autocomplete_enabled == False:
-            debugMsg(prefs, "autocomplete_enabled was off")
-            return []
-
-        id = view.id()
-        debugMsg(prefs, "on_query_completions id="+str(id))
-        if id in completionsCache:
-            _completions = completionsCache[id]
-            del completionsCache[id]
-            debugMsg(prefs, "_completions="+str(_completions))
-            return _completions
-
-        return []
-
-
-    def on_modified(self, view):
-        if view.settings().get('syntax') != 'Packages/PHP/PHP.tmLanguage':
-            return
-
-        prefs = preferences.load(view)
-        self.queueBackgroundAutocompletions(prefs, view)
-        # self.triggerAutocomplete(view)
-
-        # show autocompletions in one second if there are any to show
-        def _callback():
-            if view.id() in completionsCache:
-                self.triggerAutocomplete(prefs, view)
-        sublime.set_timeout(_callback, 1000)
-
-
-    def queueBackgroundAutocompletions(self, prefs, view):
-        threadq.add(view, self.populateAutocompletionsCache, [prefs])
-        threadq.trigger()
-
-    def triggerAutocomplete(self, prefs, view):
-        view.run_command('auto_complete', {
-            'disable_auto_insert': True,
-            'api_completions_only': True,
-            'next_completion_if_showing': False,
-        })
-
-
-    def populateAutocompletionsCache(self, view, prefs):
-        global completionsCache
-
-        for thread in threading.enumerate():
-            if thread.isAlive() and thread.name == "populate autocompletions thread":
-                debugMsg(prefs, "autocompletions already running...")
-                return
-
-        id = view.id()
-        debugMsg(prefs, "view id is "+str(id))
-        # threading.thread(target=self.buildAutocompletions, name="build autocompletions", args=[view]).start()
-        def _do_populate_completions(prefs, content, pos, intel_db_filepath):
-            completionsCache[id] = self.buildAutocompletions(prefs, view, content, pos, intel_db_filepath)
 
         intel_db_filepath = prefs.getDBFilePath(view)
         content = view.substr(sublime.Region(0, view.size()))
-        sel = view.sel()[0]
-        pos = sel.end()
 
-        threading.Thread(target=_do_populate_completions, name="populate autocompletions thread", args=[prefs, content, pos, intel_db_filepath]).start()
-
-        return
-
-
-
-    def buildAutocompletions(self, prefs, view, content, pos, intel_db_filepath):
-        # # DEBUG
-        # time.sleep(1.5)
-        # return [('testcompletion1\tsample','test1'),('testcompletion2\tsample','test2')]
-        # # DEBUG
 
         completions_array = phpdaemon.runRemoteCommandInPHPDaemon(prefs, 'autoComplete', [content, pos, intel_db_filepath])
         if completions_array == None:
             debugMsg(prefs, "completions_array was None");
             return
 
-        # convert completions array into tuples for python
-        completions = []
-        for item in completions_array:
-            completions.append((item[0], item[1]))
-        return completions
+        return completions_array;
 
+
+class PhpCodeIntelInsertCompletion(sublime_plugin.TextCommand):
+    def run(self, edit, selection=False, encoding='utf-8', kill=False, completion=''):
+        region = self.get_expanded_region()
+        self.view.replace(edit, region, completion)
+
+    def get_expanded_region(self):
+        view = self.view
+        sel = view.sel()
+        region = sel[0]
+
+        end_classification = view.classify(region.end())
+        if sublime.CLASS_WORD_END & end_classification:
+            # at the end of a word, add the whole word
+            region = view.word(region)
+        elif not (end_classification & (sublime.CLASS_WORD_START | sublime.CLASS_WORD_END | sublime.CLASS_LINE_START | sublime.CLASS_LINE_END | sublime.CLASS_PUNCTUATION_START | sublime.CLASS_PUNCTUATION_END | sublime.CLASS_SUB_WORD_START | sublime.CLASS_SUB_WORD_END | sublime.CLASS_EMPTY_LINE)):
+            # in the middle of a word
+            region = view.word(region)
+
+        return region
+
+##############################################################################################################################
+# Event Listener
+##############################################################################################################################
+
+completionsCache = {}
+
+class PhpCodeIntel(PhpCodeIntelBase, sublime_plugin.EventListener):
 
     ############################################
     # rescan file on save
 
-    def on_post_save(self, view):
+    def on_post_save_async(self, view):
         prefs = preferences.load(view)
         if prefs.rescan_on_save == True:
+            debugMsg(prefs, "Saving (async)")
             extension_types = prefs.php_extensions
             for extension in prefs.php_extensions:
                 if view.file_name().endswith(extension):
                     self.rescanFile(prefs, view, view.file_name())
-
 
 
 

@@ -1,4 +1,6 @@
 [
-    // rescans the current file
-    // { "keys": ["ctrl+r","ctrl+r"], "command": "php_code_intel_scan_file" }
+    // super+alt+enter shows completions
+    { "keys": ["super+alt+enter"], "command": "php_code_intel_show_completions" }
 ]
+
+

@@ -2,7 +2,7 @@ import sublime
 import os
 import json
 import subprocess
-import thread
+import threading
 import socket
 import time
 
@@ -52,10 +52,10 @@ def sendMessageToPHPDaemon(prefs, message, aSync=False):
         return
 
     netstring = str(len(message))+":"+message+","
-    sent = sock.send(netstring)
+    sent = sock.send(netstring.encode('utf-8'))
 
     if aSync:
-        thread.start_new_thread(processAsyncResponse, (prefs,sock))
+        threading.Thread(target=processAsyncResponse, args=(prefs,sock)).start()
         return
 
     data = readDataFromSocket(sock)
@@ -69,9 +69,10 @@ def processAsyncResponse(prefs, sock):
         warnMsg("runRemoteCommandInPHPDaemon response (async): None")
         return
     response = json.loads(json_string)
-    # print "response read: "+json.dumps(response['msg'])
+    # print("response read: "+json.dumps(response['msg']))
 
     # do something with response['msg']
+    sublime.status_message("PHPCI: done")
 
 def readDataFromSocket(sock):
     data = ''
@@ -79,7 +80,7 @@ def readDataFromSocket(sock):
         chunk = sock.recv(1024)
         if not chunk:
             break
-        data = data + chunk
+        data = data + chunk.decode('utf-8')
 
     sock.close()
     return data

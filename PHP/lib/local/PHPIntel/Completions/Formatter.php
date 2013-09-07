@@ -13,9 +13,27 @@ class Formatter
     public function formatEntitiesAsCompletions($entities) {
         $out = array();
         foreach($entities as $entity) {
-            $out[] = array($entity['name']."\t".$this->formatTypeForSublime($entity), $this->escapeForSublime($entity['completion']));
+            $out[] = array($this->formatDescriptiveName($entity), $this->escapeForSublime($entity['completion']));
         }
         return $out;
+    }
+
+    protected function formatDescriptiveName($entity) {
+        $separator = ($entity['scope'] == 'static' ? '::' : '->');
+
+        $out = 
+            $this->formatTypeForSublime($entity).
+            " ".
+            $this->abbreviatedClassName($entity['class']).
+            $separator.            
+            $entity['name'];
+
+        return $out;
+    }
+
+    protected function abbreviatedClassName($full_class_name) {
+        $pieces = explode('\\', $full_class_name);
+        return $pieces[count($pieces) -1 ];
     }
 
     protected function formatTypeForSublime($entity) {
@@ -25,7 +43,7 @@ class Formatter
 
         switch ($entity['type']) {
             case 'method':
-                return $this->abbreviatedVisibilityAndScope($entity['visibility'], $entity['scope']).' func';
+                return $this->abbreviatedVisibilityAndScope($entity['visibility'], $entity['scope']).' fn';
             break;
             case 'variable':
                 return $this->abbreviatedVisibilityAndScope($entity['visibility'], $entity['scope']).' var';
@@ -64,6 +82,7 @@ class Formatter
     }
 
     protected function escapeForSublime($text) {
-      return str_replace('$','\\$', $text);
+      // return str_replace('$','\\$', $text);
+      return $text;
     }
 }

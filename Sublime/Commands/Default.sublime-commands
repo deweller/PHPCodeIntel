@@ -4,6 +4,10 @@
         "command": "php_code_intel_scan_project"
     },
     {
+        "caption": "PHPCodeIntel: Show Completions",
+        "command": "php_code_intel_show_completions"
+    },
+    {
         "caption": "PHPCodeIntel: Shutdown Intel Daemon",
         "command": "php_code_intel_shutdown_daemon"
     }
