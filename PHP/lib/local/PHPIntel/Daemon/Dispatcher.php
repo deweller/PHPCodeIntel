@@ -85,7 +85,8 @@ class Dispatcher
     public static function executeCommand_autoComplete($php_content, $current_position, $sqlite_db_file) {
         $builder = new ContextBuilder();
         $context = $builder->buildContext($php_content, $current_position);
-        // Logger::log("context: ".print_r((array)$context, true));
+        Logger::log("sqlite_db_file: ".$sqlite_db_file);
+        Logger::log("context: ".print_r((array)$context, true));
 
         if ($context) {
             $reader = new SQLiteReader($sqlite_db_file);
