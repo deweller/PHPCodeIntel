@@ -26,12 +26,22 @@ class SQLiteReader
 
     public function lookupByContext(Context $context)
     {
-        $parent_entities = $this->buildParentEntitiesByContext($context);
+        switch ($context['entityType']) {
 
-        $entities = $this->buildEntitiesByContext($context);
+            case 'className':
+                return $this->lookupClassEntitiesByContext($context);
+                break;
 
-        return $this->mergeEntities($parent_entities, $entities);
+            case 'constructor':
+                return $this->lookupConstructorEntitiesByContext($context);
+                break;
+
+        }
+
+        return $this->lookupMemberEntitiesByContext($context);
+
     }
+
 
     /**
      * looks up the parent if any from the inheritance chain
@@ -102,6 +112,7 @@ class SQLiteReader
     {
         $parent_entities = null;
         $parent_class = $this->getParentClass($context['class']);
+        // Logger::log("\$parent_class=$parent_class");
 
         if ($parent_class) {
             $parent_context = $context->getParentContext($parent_class);
@@ -113,7 +124,16 @@ class SQLiteReader
         return $parent_entities;
     }
 
-    protected function buildEntitiesByContext(Context $context)
+    protected function lookupMemberEntitiesByContext($context) {
+        $parent_entities = $this->buildParentEntitiesByContext($context);
+
+        $entities = $this->buildEntitiesByContext_member($context);
+
+        return $this->mergeEntities($parent_entities, $entities);
+    }
+
+
+    protected function buildEntitiesByContext_member(Context $context)
     {
         // build lookup query
         $sql_text = "SELECT * FROM entity WHERE scope = ? AND class = ? AND visibility <= ?";
@@ -127,6 +147,80 @@ class SQLiteReader
 
         // Logger::log("sql_text=$sql_text query_vars=".print_r($query_vars, true));
         return $this->buildEntitiesByQuery($sql_text, $query_vars);
+    }
+
+
+    protected function lookupConstructorEntitiesByContext(Context $context) {
+        // first lookup all class entities
+        $class_entities = $this->lookupClassEntitiesByContext($context);
+
+        $entities_out = array();
+        foreach($class_entities as $class_entity) {
+            $constructor_entity = $this->buildFirstConstructorEntityByName($class_entity['name']);
+            // Logger::log("\$constructor_entity=".print_r($constructor_entity, true));
+            if (!$constructor_entity) { continue; }
+
+            $constructor_entity['name'] = preg_replace('!^__construct(.*)!i', $class_entity['shortName'].'$1', $constructor_entity['name']);
+            $constructor_entity['completion'] = preg_replace('!^__construct(.*)!i', $class_entity['shortName'].'$1', $constructor_entity['completion']);
+            $entities_out[] = $constructor_entity;
+        }
+
+        // Logger::log("entities_out=".print_r($entities_out, true));
+        return $entities_out;
+    } 
+
+    protected function buildFirstConstructorEntityByName($class_name) {
+        // see if each has a constructor,
+        $constructor_entity = $this->buildConstructorEntityForClassName($class_name);
+        if ($constructor_entity) {
+            // if so, use it
+            return $constructor_entity;
+        }
+
+        //  if not, travel up the inheritance chain until we find a class that does.
+        if ($parent_class_name = $this->getParentClass($class_name)) {
+            return $this->buildFirstConstructorEntityByName($parent_class_name);
+        }
+
+        // no constructor and no parent
+        return null;
+    }
+
+    protected function buildConstructorEntityForClassName($class_name)
+    {
+        // build lookup query
+        $sql_text = "SELECT * FROM entity WHERE scope = 'instance' AND type = 'method' AND name = '__construct' AND class = ?";
+        $query_vars = array($class_name);
+        $entities = $this->buildEntitiesByQuery($sql_text, $query_vars);
+        if ($entities) { return $entities[0]; }
+        return null;
+    }
+
+    protected function lookupClassEntitiesByContext($context) {
+        // build lookup query
+        $sql_text = "SELECT name, shortName FROM inheritance";
+        $query_vars = array();
+
+        // add prefix if it exists
+        if (strlen($context['prefix'])) {
+            $sql_text .= " WHERE shortName LIKE ?";
+            $query_vars[] = $context['prefix'].'%';
+        }
+
+        // Class entities
+        return $this->buildClassEntitiesByQuery($sql_text, $query_vars);
+    }
+
+    protected function buildClassEntitiesByQuery($sql_text, $query_vars=array())
+    {
+        $class_entities = array();
+        $results = $this->executeQuery($sql_text, $query_vars);
+        foreach ($results as $row) {
+            $data = $row;
+            $class_entities[] = new ClassEntity($data);
+        }
+
+        return $class_entities;
     }
 
 

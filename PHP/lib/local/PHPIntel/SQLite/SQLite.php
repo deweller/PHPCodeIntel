@@ -50,12 +50,14 @@ CREATE TABLE IF NOT EXISTS entity (
 
     filepath TEXT,
     class TEXT,
+    shortClassName TEXT,
     type TEXT,
     visibility INTEGER,
     scope TEXT
 )");
             $db->exec("CREATE INDEX IF NOT EXISTS entity_completion_idx ON entity (completion)");
             $db->exec("CREATE INDEX IF NOT EXISTS entity_scope_class_idx ON entity (scope, class)");
+            $db->exec("CREATE INDEX IF NOT EXISTS entity_shortName_idx ON entity (shortClassName)");
 
 
             ////////////////////////////////////////////////////////////////////////
@@ -64,9 +66,11 @@ CREATE TABLE IF NOT EXISTS entity (
             $db->exec("
 CREATE TABLE IF NOT EXISTS inheritance (
     name TEXT,
+    shortName TEXT,
     parent TEXT
 )");
             $db->exec("CREATE INDEX IF NOT EXISTS inheritance_name_idx ON inheritance (name)");
+            $db->exec("CREATE INDEX IF NOT EXISTS inheritance_shortName_idx ON inheritance (shortName)");
 
 
             ////////////////////////////////////////////////////////////////////////

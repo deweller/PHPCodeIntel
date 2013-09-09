@@ -1,8 +1,19 @@
 -
+    name: __construct
+    completion: __construct($foo_prop)
+    filepath: ==data_path==/sample_project/lib/BaseClassOne.php
+    class: BaseClassOne
+    shortClassName: BaseClassOne
+    type: method
+    visibility: public
+    scope: instance
+
+-
     name: methodBaseOne
     completion: methodBaseOne()
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
     class: BaseClassOne
+    shortClassName: BaseClassOne
     type: method
     visibility: public
     scope: instance
@@ -12,6 +23,7 @@
     completion: methodBaseTwo($var_one)
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
     class: BaseClassOne
+    shortClassName: BaseClassOne
     type: method
     visibility: public
     scope: instance
@@ -21,6 +33,7 @@
     completion: methodProOne()
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
     class: BaseClassOne
+    shortClassName: BaseClassOne
     type: method
     visibility: protected
     scope: instance
@@ -30,6 +43,7 @@
     completion: staticOne()
     filepath: ==data_path==/sample_project/lib/BaseClassOne.php
     class: BaseClassOne
+    shortClassName: BaseClassOne
     type: method
     visibility: public
     scope: static
@@ -40,6 +54,7 @@
     completion: methodBaseTwo($var_one)
     filepath: ==data_path==/sample_project/lib/Sub/ChildClassOne.php
     class: Sub\ChildClassOne
+    shortClassName: ChildClassOne
     type: method
     visibility: public
     scope: instance
@@ -48,6 +63,7 @@
     completion: "methodChildOne()"
     filepath: ==data_path==/sample_project/lib/Sub/ChildClassOne.php
     class: Sub\ChildClassOne
+    shortClassName: ChildClassOne
     type: method
     visibility: public
     scope: instance
@@ -57,6 +73,7 @@
     completion: methodAcmeOne()
     filepath: ==data_path==/sample_project/vendor/Acme/AcmeClassOne.php
     class: Acme\AcmeClassOne
+    shortClassName: AcmeClassOne
     type: method
     visibility: public
     scope: instance
@@ -65,6 +82,7 @@
     completion: methodAcmeTwo($var_one)
     filepath: ==data_path==/sample_project/vendor/Acme/AcmeClassOne.php
     class: Acme\AcmeClassOne
+    shortClassName: AcmeClassOne
     type: method
     visibility: public
     scope: instance
@@ -73,6 +91,7 @@
     completion: methodAbstractAcmeOne()
     filepath: ==data_path==/sample_project/vendor/Acme/AcmeAbstractClassOne.php
     class: Acme\AcmeAbstractClassOne
+    shortClassName: AcmeAbstractClassOne
     type: method
     visibility: public
     scope: instance

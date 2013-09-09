@@ -261,3 +261,26 @@
         prefix: ""
         class: "Outdoor\\Flower"
 
+####################################
+-
+    php: "$f = new Flower"
+    context:
+        entityType: "constructor"
+        visibility: "public"
+        prefix: "Flower"
+
+####################################
+-
+    php: "Flower"
+    context:
+        entityType: "className"
+        visibility: "public"
+        prefix: "Flower"
+
+####################################
+-
+    php: "$a=0;Flower"
+    context:
+        entityType: "className"
+        visibility: "public"
+        prefix: "Flower"

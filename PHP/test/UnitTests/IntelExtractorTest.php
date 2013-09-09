@@ -1,9 +1,9 @@
 <?php
 
-use PHPIntel\Intel\IntelBuilder;
-use PHPIntel\Test\EntityBuilder;
 use PHPIntel\Entity\IntelEntity;
-
+use PHPIntel\Intel\IntelBuilder;
+use PHPIntel\Logger\Logger;
+use PHPIntel\Test\EntityBuilder;
 use \PHPUnit_Framework_Assert as PHPUnit;
 
 class IntelExtractorTest extends \PHPUnit_Framework_TestCase

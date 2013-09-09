@@ -30,3 +30,40 @@
         - methodBaseOne()
         - methodBaseTwo($var_one)
         - methodChildOne()
+
+####################################
+-
+    context:
+        entityType: "className"
+        visibility: "public"
+        prefix: "BaseClassO"
+    completions:
+        - BaseClassOne
+
+####################################
+-
+    context:
+        entityType: "className"
+        visibility: "public"
+        prefix: "Acme"
+    completions:
+        - AcmeAbstractClassOne
+        - AcmeClassOne
+
+####################################
+-
+    context:
+        entityType: "constructor"
+        visibility: "public"
+        prefix: "BaseClassOne"
+    completions:
+        - BaseClassOne($foo_prop)
+
+####################################
+-
+    context:
+        entityType: "constructor"
+        visibility: "public"
+        prefix: "ChildClassOne"
+    completions:
+        - ChildClassOne($foo_prop)

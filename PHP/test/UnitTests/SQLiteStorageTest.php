@@ -41,24 +41,26 @@ class SQLiteStorageTest extends \PHPUnit_Framework_TestCase
     {
         return array(
             new IntelEntity(array(
-                'name'      => 'function1',
-                'completion' => 'function1($a, $b)',
+                'name'           => 'function1',
+                'completion'     => 'function1($a, $b)',
 
-                'filepath'   => null,
-                'class'      => null,
-                'type'       => null,
-                'visibility' => null,
-                'scope'      => null,
+                'filepath'       => null,
+                'class'          => null,
+                'shortClassName' => null,
+                'type'           => null,
+                'visibility'     => null,
+                'scope'          => null,
             )),
             new IntelEntity(array(
-                'name'      => 'function2',
-                'completion' => 'function2($a, $b)',
+                'name'           => 'function2',
+                'completion'     => 'function2($a, $b)',
 
-                'filepath'   => null,
-                'class'      => null,
-                'type'       => null,
-                'visibility' => null,
-                'scope'      => null,
+                'filepath'       => null,
+                'class'          => null,
+                'shortClassName' => null,
+                'type'           => null,
+                'visibility'     => null,
+                'scope'          => null,
               )),
             );
     }

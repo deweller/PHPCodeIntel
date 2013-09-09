@@ -50,12 +50,19 @@ class ContextBuilder
     public function resolveContext($tokens, $position_map, $str_position, $statements)
     {
         $token_offset = LexerUtil::findTokenOffsetByStringPosition($tokens, $position_map, $str_position);
-        if ($token_offset < 2) { return null; }
+        // Logger::log("\$token_offset=".print_r($token_offset, true));
+        if ($token_offset == 1) {
+            // build a string of the last two tokens
+            $token_0 = array();
+            $token_1 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 1]);
+            $token_2 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 0]);
+        } else {
+            // build a string of the last three tokens
+            $token_0 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 2]);
+            $token_1 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 1]);
+            $token_2 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 0]);
+        }
 
-        // build a string of the last three tokens
-        $token_0 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 2]);
-        $token_1 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 1]);
-        $token_2 = LexerUtil::buildTokenDescriptionArray($tokens[$token_offset - 0]);
         // Logger::log("tokens are  0)".token_name($token_0[0]).":".$token_0[1]." 1)".token_name($token_1[0]).":".$token_1[1]." 2)".token_name($token_2[0]).":".$token_2[1]."");
 
         $context_data = array();
@@ -94,6 +101,21 @@ class ContextBuilder
                 $context_data['prefix']     = '';
                 $context_data['class']      = $this->resolveClassForVariable($context_data['variable'], $statements);
                 break;
+
+            // new Something
+            case $token_0[0] == T_NEW AND $token_1[0] == T_WHITESPACE AND $token_2[0] = T_STRING:
+                $context_data['entityType'] = 'constructor';
+                $context_data['visibility'] = 'public';
+                $context_data['prefix']     = $token_2[1];
+                break;
+
+            // just a class name
+            case $token_2[0] = T_STRING:
+                $context_data['entityType'] = 'className';
+                $context_data['visibility'] = 'public';
+                $context_data['prefix']     = $token_2[1];
+                break;
+
             
             default:
                 break;

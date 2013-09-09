@@ -3,6 +3,7 @@
     completion: functionOne()
     filepath: ==data_path==/SimpleClassOne.php
     class: SimpleClassOne
+    shortClassName: SimpleClassOne
     type: method
     visibility: public
     scope: instance
@@ -12,6 +13,7 @@
     completion: functionTwo($var_one)
     filepath: ==data_path==/SimpleClassOne.php
     class: SimpleClassOne
+    shortClassName: SimpleClassOne
     type: method
     visibility: public
     scope: instance
@@ -21,6 +23,7 @@
     completion: "functionThree($var_one, $var_two='default')"
     filepath: ==data_path==/SimpleClassOne.php
     class: SimpleClassOne
+    shortClassName: SimpleClassOne
     type: method
     visibility: public
     scope: instance
@@ -30,6 +33,7 @@
     completion: "functionFour($var_one, &$ref_var_two, array $var_three_array)"
     filepath: ==data_path==/SimpleClassOne.php
     class: SimpleClassOne
+    shortClassName: SimpleClassOne
     type: method
     visibility: public
     scope: instance
@@ -39,6 +43,7 @@
     completion: "functionFive($var_one, SimpleClassOne $class_two)"
     filepath: ==data_path==/SimpleClassOne.php
     class: SimpleClassOne
+    shortClassName: SimpleClassOne
     type: method
     visibility: public
     scope: instance
@@ -48,6 +53,7 @@
     completion: "functionSix($var_one=null)"
     filepath: ==data_path==/SimpleClassOne.php
     class: SimpleClassOne
+    shortClassName: SimpleClassOne
     type: method
     visibility: public
     scope: instance
@@ -57,6 +63,7 @@
     completion: "statOnePub()"
     filepath: ==data_path==/SimpleClassOne.php
     class: SimpleClassOne
+    shortClassName: SimpleClassOne
     type: method
     visibility: public
     scope: static
@@ -65,6 +72,7 @@
     completion: "statOnePro()"
     filepath: ==data_path==/SimpleClassOne.php
     class: SimpleClassOne
+    shortClassName: SimpleClassOne
     type: method
     visibility: protected
     scope: static
@@ -73,6 +81,7 @@
     completion: "proOne($var_one=null)"
     filepath: ==data_path==/SimpleClassOne.php
     class: SimpleClassOne
+    shortClassName: SimpleClassOne
     type: method
     visibility: protected
     scope: instance

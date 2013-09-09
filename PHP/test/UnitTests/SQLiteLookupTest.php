@@ -1,11 +1,11 @@
 <?php
 
-use PHPIntel\Test\TestProject;
-use PHPIntel\Logger\Logger;
-use PHPIntel\Test\EntityBuilder;
 use PHPIntel\Context\Context;
+use PHPIntel\Entity\ClassEntity;
+use PHPIntel\Logger\Logger;
 use PHPIntel\Reader\SQLiteReader;
-
+use PHPIntel\Test\EntityBuilder;
+use PHPIntel\Test\TestProject;
 use \PHPUnit_Framework_Assert as PHPUnit;
 
 class SQLiteLookupTest extends \PHPUnit_Framework_TestCase
@@ -39,7 +39,11 @@ class SQLiteLookupTest extends \PHPUnit_Framework_TestCase
         $actual_completions = array();
         $read_entities = $reader->lookupByContext($context);
         foreach($read_entities as $read_entity) {
-            $actual_completions[] = $read_entity['completion'];
+            if ($read_entity instanceof ClassEntity) {
+                $actual_completions[] = $read_entity['shortName'];
+            } else {
+                $actual_completions[] = $read_entity['completion'];
+            }
         }
 
         PHPUnit::assertEquals($expected_completions, $actual_completions);

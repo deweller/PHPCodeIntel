@@ -2,6 +2,7 @@
 
 namespace PHPIntel\Completions;
 
+use PHPIntel\Entity\ClassEntity;
 use \Exception;
 
 /*
@@ -13,7 +14,17 @@ class Formatter
     public function formatEntitiesAsCompletions($entities) {
         $out = array();
         foreach($entities as $entity) {
-            $out[] = array($this->formatDescriptiveName($entity), $this->escapeForSublime($entity['completion']));
+            if ($entity instanceof ClassEntity) {
+                $out[] = array(
+                    $entity['name'],
+                    $entity['shortName'],
+                );
+            } else {
+                $out[] = array(
+                    $this->formatDescriptiveName($entity),
+                    $this->escapeForSublime($entity['completion'])
+                );
+            }
         }
         return $out;
     }

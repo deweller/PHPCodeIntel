@@ -1,12 +1,16 @@
 -
     name: BaseClassOne
     parent: ""
+    shortName: BaseClassOne
 -
     name: Sub\ChildClassOne
     parent: BaseClassOne
+    shortName: ChildClassOne
 -
     name: Acme\AcmeClassOne
     parent: Acme\AcmeAbstractClassOne
+    shortName: AcmeClassOne
 -
     name: Acme\AcmeAbstractClassOne
     parent: ""
+    shortName: AcmeAbstractClassOne

@@ -49,9 +49,9 @@ class SQLiteDumper implements Dumper
 
     public function dumpIntelEntities($db, array $entities)
     {
-        $sth = $db->prepare('INSERT INTO entity (name, completion, filepath, class, type, visibility, scope) VALUES (?,?,?,?,?,?,?)');
+        $sth = $db->prepare('INSERT INTO entity (name, completion, filepath, class, shortClassName, type, visibility, scope) VALUES (?,?,?,?,?,?,?,?)');
         foreach($entities as $entity) {
-            $sth->execute(array($entity['name'], $entity['completion'], $entity['filepath'], $entity['class'], $entity['type'], SQLite::visibilityTextToNumber($entity['visibility']), $entity['scope']));
+            $sth->execute(array($entity['name'], $entity['completion'], $entity['filepath'], $entity['class'], $entity['shortClassName'], $entity['type'], SQLite::visibilityTextToNumber($entity['visibility']), $entity['scope']));
         }
     }
 
@@ -59,8 +59,8 @@ class SQLiteDumper implements Dumper
         foreach($classes as $class) {
             $db->prepare('DELETE FROM inheritance WHERE name=?')->execute(array($class['name']));
 
-            $sth = $db->prepare('INSERT INTO inheritance (name, parent) VALUES (?,?)');
-            $res = $sth->execute(array($class['name'], $class['parent']));
+            $sth = $db->prepare('INSERT INTO inheritance (name, shortName, parent) VALUES (?,?,?)');
+            $res = $sth->execute(array($class['name'], $class['shortName'], $class['parent']));
         }
     }
 

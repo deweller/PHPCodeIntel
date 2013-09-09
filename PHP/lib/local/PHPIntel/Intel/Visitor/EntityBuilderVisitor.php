@@ -72,24 +72,31 @@ class EntityBuilderVisitor extends \PHPParser_NodeVisitor_NameResolver
 
 
         $this->intel_entities[] = new IntelEntity(array(
-            'name'      => $function_name,
-            'completion' => "{$function_name}({$params_text})",
-            'filepath'   => $this->source_file,
-            'class'      => $this->current_class_entity['name'],
-            'type'       => 'method',
-            'visibility' => $this->visibilityFromNode($node),
-            'scope'      => $this->scopeFromMethodNode($node),
+            'name'           => $function_name,
+            'completion'     => "{$function_name}({$params_text})",
+            'filepath'       => $this->source_file,
+            'class'          => $this->current_class_entity['name'],
+            'shortClassName' => $this->current_class_entity['shortName'],
+            'type'           => 'method',
+            'visibility'     => $this->visibilityFromNode($node),
+            'scope'          => $this->scopeFromMethodNode($node),
         ));
     }
 
     protected function enterNode_Stmt_Class($node) {
         $this->current_class_entity = new ClassEntity(array(
-            'name'   => (string)$node->namespacedName,
-            'parent' => isset($node->extends) ? (string)$node->extends : '',
+            'name'       => (string)$node->namespacedName,
+            'shortName'  => $this->makeShortClass((string)$node->namespacedName),
+            'parent'     => isset($node->extends) ? (string)$node->extends : '',
         ));
 
         // Logger::log("class: ".print_r((array)$this->current_class_entity, true));
     } 
+
+    protected function makeShortClass($full_class_name) {
+        $pieces = explode('\\', $full_class_name);
+        return $pieces[count($pieces) -1 ];
+    }
 
     protected function leaveNode_Stmt_Class($node) {
         $this->class_entities[] = $this->current_class_entity;
